@@ -15,8 +15,11 @@ public class PdfChunk {
 
 	private Long documentId;
 
-	@Column(columnDefinition = "TEXT") //to be stored as a TEXT type in SQL, instead of a limited-length VARCHAR.
+	@Column(columnDefinition = "TEXT") // to be stored as a TEXT type in SQL, instead of a limited-length VARCHAR.
 	private String chunkText;
+
+	@Column(columnDefinition = "TEXT")
+	private String embedding;
 
 	private int chunkIndex;
 
@@ -62,4 +65,11 @@ public class PdfChunk {
 		this.pageNumber = pageNumber;
 	}
 
+	public String getEmbedding() {
+		return embedding;
+	}
+
+	public void setEmbedding(String embedding) {
+		this.embedding = embedding;
+	}
 }

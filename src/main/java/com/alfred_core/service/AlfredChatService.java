@@ -9,6 +9,7 @@ import com.alfred_core.dto.SearchResultDto;
 @Service
 public class AlfredChatService {
 
+	private final SemanticSearchService semanticSearchService;
     private final PdfSearchService pdfSearchService;
     private final PromptBuilderService promptBuilderService;
     private final AIProviderRouter providerRouter;
@@ -16,17 +17,21 @@ public class AlfredChatService {
     public AlfredChatService(
             PdfSearchService pdfSearchService,
             PromptBuilderService promptBuilderService,
-            AIProviderRouter providerRouter
+            AIProviderRouter providerRouter,
+            SemanticSearchService semanticSearchService
     ) {
         this.pdfSearchService = pdfSearchService;
         this.promptBuilderService = promptBuilderService;
         this.providerRouter = providerRouter;
+        this.semanticSearchService = semanticSearchService;
     }
 
     public ChatResponse ask(ChatRequest request) {
 
-        List<SearchResultDto> chunks =
-                pdfSearchService.search(request.getQuestion());
+    	List<SearchResultDto> chunks =
+    	        semanticSearchService.search(
+    	                request.getQuestion()
+    	        );
 
         String prompt =
                 promptBuilderService.buildPrompt(

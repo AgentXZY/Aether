@@ -20,13 +20,17 @@ import jakarta.transaction.Transactional;
 public class PdfDocumentService {
 
 	private final PdfDocumentRepository pdfRepo;
-
+	private final EmbeddingService embeddingService;
 	private final PdfChunkRepository chunkRepo;
 
-	public PdfDocumentService(PdfDocumentRepository pdfRepo,
-	                          PdfChunkRepository chunkRepo) {
+	public PdfDocumentService(
+	        PdfDocumentRepository pdfRepo,
+	        PdfChunkRepository chunkRepo,
+	        EmbeddingService embeddingService) {
+
 	    this.pdfRepo = pdfRepo;
 	    this.chunkRepo = chunkRepo;
+	    this.embeddingService = embeddingService;
 	}
 
 	@Transactional
@@ -79,10 +83,15 @@ public class PdfDocumentService {
 		for (String c : chunks) {
 
 			PdfChunk chunk = new PdfChunk();
-			chunk.setDocumentId(documentId);
 			chunk.setChunkText(c);
 			chunk.setChunkIndex(index++);
-			chunk.setPageNumber(0); // optional for now
+			chunk.setPageNumber(0);
+
+			List<Double> embedding = embeddingService.generateEmbedding(c);
+
+			chunk.setEmbedding(
+			        embedding.toString()
+			);
 
 			chunkRepo.save(chunk);
 		}
