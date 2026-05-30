@@ -1,59 +1,70 @@
 # Aether
 
-Open-source AI operating system for desktop assistance.
+**Open-source AI Operating System for Desktop Assistance**
 
-Alfred is the first built-in assistant.
+Alfred is the first intelligent assistant built into Aether.
 
 ---
 
 ## Vision
 
-Aether is designed to turn your computer into an intelligent workspace capable of:
+Aether aims to transform your computer into a **smart, private, and autonomous workspace**. It combines local AI power with modular architecture to create a true desktop AI companion.
 
-- Understanding context
-- Remembering conversations
-- Reading files and emails
-- Executing tasks
-- Routing between local and cloud AI
-- Acting like a real desktop assistant
-
-This project focuses on:
-- local-first AI
-- modular architecture
-- privacy
-- automation
-- autonomous agents
+### Key Goals
+- **Local-first** design with strong privacy
+- Seamless routing between local (Ollama) and cloud LLMs
+- Long-term memory and conversation context
+- Document understanding (PDFs, files)
+- Task automation and agent capabilities
+- Modular, extensible architecture
 
 ---
 
-## Current Stack
+## Current Features
+
+- **Chat Interface** with local LLM support (Ollama)
+- **PDF Processing & RAG** (upload, extract text, chunking & storage)
+- **AI Provider Router** (Local vs Cloud fallback)
+- **Conversation Memory** using SQLite
+- **REST API** for chat and document operations
+
+---
+
+## Tech Stack
 
 ### Backend
-- Java
-- Spring Boot
-- Maven
+- **Java 21**
+- **Spring Boot 3.3**
+- **Maven**
+- **Spring Data JPA + SQLite**
 
 ### AI
-- Ollama
-- Gemini API
-- Local LLM routing
+- **Ollama** (Local LLM inference)
+- **Google Gemini** (Cloud fallback)
+- **Apache PDFBox** (PDF extraction)
 
-### Future
-- Tauri desktop app
-- Voice interaction
-- Agent framework
-- Long-term memory
-- Automation system
+### Future Stack
+- Tauri (Desktop UI)
+- Vector Database (for better RAG)
+- Voice Input/Output
+- Agent Framework
 
 ---
 
-## Architecture
+## Project Architecture
 
-```txt
-aether/
-├── engine/        # AI response generation
-├── memory/        # conversation + long-term memory
-├── automation/    # emails, files, tasks
-├── agent/         # planning + execution
-├── auth/          # multi-user + security
-└── ui/            # desktop frontend
+```bash
+src/main/java/com/alfred_core/
+├── AlfredCoreApplication.java
+├── config/              # Configuration classes & beans
+├── controller/          # REST API endpoints
+├── dto/                 # Data Transfer Objects
+├── entity/              # JPA Entities (PdfDocument, ChatMessage, etc.)
+├── repository/          # Data Access Layer
+├── service/             # Business Logic
+│   ├── OllamaService
+│   ├── AlfredChatService
+│   ├── PdfDocumentService
+│   ├── AIProviderRouter
+│   └── ...
+└── util/                # Helper classes (TextChunker, etc.)
