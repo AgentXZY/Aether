@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-public class RestTemplateConfig {
+public class RestTemplateConfig { //CAN BE CONSIDERED AS A SINGLE USER
 
     @Bean
     public RestTemplate restTemplate() {

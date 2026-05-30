@@ -28,11 +28,8 @@ public class ChatMessageService {
 		try {
 
 			String fileName = "chat-logs/" + LocalDate.now() + ".txt";
-
 			FileWriter writer = new FileWriter(fileName, true); //TRUE FOR APPEND
-
 			writer.write("[" + LocalDateTime.now() + "] " + "\n" + content + "\n");
-
 			writer.close();
 
 		} catch (IOException e) {
@@ -45,5 +42,4 @@ public class ChatMessageService {
 	public List<ChatMessage> getAllChats() {
 		return chatRepo.findAll();
 	}
-
 }

@@ -28,18 +28,13 @@ public class PromptBuilderService {
             """);
 
         for (SearchResultDto chunk : chunks) {
-
             prompt.append("\n");
-
             prompt.append(chunk.getChunkText());
-
             prompt.append("\n");
         }
 
         prompt.append("\nUSER QUESTION:\n");
-
         prompt.append(question);
-
         prompt.append("\n\nANSWER:");
 
         return prompt.toString();

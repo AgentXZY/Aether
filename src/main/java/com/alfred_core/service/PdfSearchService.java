@@ -23,7 +23,7 @@ public class PdfSearchService {
                 chunkRepo.findByChunkTextContainingIgnoreCase(query);
         
       //Spring reads that method name and automatically builds this SQL:
-      //	sqlSELECT * FROM pdf_chunk 
+      //	SELECT * FROM pdf_chunk 
       //	WHERE LOWER(chunk_text) LIKE LOWER('%your query%')
 
         return chunks.stream()
