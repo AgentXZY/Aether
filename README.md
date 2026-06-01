@@ -54,17 +54,48 @@ Aether aims to transform your computer into a **smart, private, and autonomous w
 ## Project Architecture
 
 ```bash
-src/main/java/com/alfred_core/
-├── AlfredCoreApplication.java
-├── config/              # Configuration classes & beans
-├── controller/          # REST API endpoints
-├── dto/                 # Data Transfer Objects
-├── entity/              # JPA Entities (PdfDocument, ChatMessage, etc.)
-├── repository/          # Data Access Layer
-├── service/             # Business Logic
-│   ├── OllamaService
-│   ├── AlfredChatService
-│   ├── PdfDocumentService
-│   ├── AIProviderRouter
-│   └── ...
-└── util/                # Helper classes (TextChunker, etc.)
+com.alfred_core/
+├── AlfredCoreApplication.java          ← Entry Point
+├── 
+├── config/
+│   └── RestTemplateConfig.java         ← Bean for HTTP calls
+├── 
+├── controller/                         ← REST Layer (Entry for external calls)
+│   ├── AlfredChatController.java
+│   ├── PdfDocumentController.java
+│   ├── ChatMessageController.java
+│   ├── QueryController.java
+│   └── Test controllers...
+├── 
+├── dto/                                ← Data Transfer Objects
+│   ├── ChatRequest.java
+│   ├── ChatResponse.java
+│   └── SearchResultDto.java
+├── 
+├── entity/                             ← Database Models (JPA)
+│   ├── ChatMessage.java
+│   ├── PdfDocument.java
+│   └── PdfChunk.java
+├── 
+├── repository/                         ← Database Access
+│   ├── ChatMessageRepository.java
+│   ├── PdfDocumentRepository.java
+│   └── PdfChunkRepository.java
+├── 
+├── service/                            ← Core Business Logic (Heart of the app)
+│   ├── AlfredChatService.java          ← Main Orchestrator
+│   ├── AIProviderRouter.java
+│   ├── OllamaService.java
+│   ├── EmbeddingService.java
+│   ├── SemanticSearchService.java
+│   ├── PdfSearchService.java
+│   ├── PdfDocumentService.java
+│   ├── PromptBuilderService.java
+│   ├── ConversationContextService.java
+│   ├── QueryProcessorService.java
+│   └── ChatMessageService.java
+├── 
+├── util/
+│   └── TextChunker.java
+└── resources/
+    └── application.properties
