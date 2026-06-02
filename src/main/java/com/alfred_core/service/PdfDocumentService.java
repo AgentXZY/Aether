@@ -86,6 +86,7 @@ public class PdfDocumentService {
 			chunk.setChunkText(c);
 			chunk.setChunkIndex(index++);
 			chunk.setPageNumber(0);
+			chunk.setDocumentId(documentId);
 
 			List<Double> embedding = embeddingService.generateEmbedding(c);
 

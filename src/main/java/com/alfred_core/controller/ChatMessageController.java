@@ -21,13 +21,14 @@ public class ChatMessageController {
         this.chatService = chatService;
     }
 
-    @PostMapping
-    public ChatMessage saveChat(@RequestBody ChatMessage request) {
-
-        return chatService.saveMessage(
-                request.getChatContent()
-        );
-    }
+//    @PostMapping
+//    public ChatMessage saveChat(@RequestBody ChatMessage request,boolean isUser) {
+//
+//        return chatService.saveMessage(
+//                request.getChatContent(),
+//                isUser
+//        );
+//    }
     
     @GetMapping
     public List<ChatMessage> getAllChats() {

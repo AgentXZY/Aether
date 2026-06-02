@@ -14,29 +14,43 @@ import com.alfred_core.repository.ChatMessageRepository;
 @Service
 public class ChatMessageService {
 
-	private ChatMessageRepository chatRepo;
+	private final ChatMessageRepository chatRepo;
 
 	public ChatMessageService(ChatMessageRepository chatRepo) {
 		this.chatRepo = chatRepo;
 	}
 
-	public ChatMessage saveMessage(String content) {
-		ChatMessage chatMessage = new ChatMessage();
-		chatMessage.setChatContent(content);
-		chatMessage.setTimestamp(LocalDateTime.now());
+	public ChatMessage saveMessage(String content, boolean isUser) {
 
-		try {
+	    ChatMessage chatMessage = new ChatMessage();
 
-			String fileName = "chat-logs/" + LocalDate.now() + ".txt";
-			FileWriter writer = new FileWriter(fileName, true); //TRUE FOR APPEND
-			writer.write("[" + LocalDateTime.now() + "] " + "\n" + content + "\n");
-			writer.close();
+	    chatMessage.setChatContent(content);
+	    chatMessage.setTimestamp(LocalDateTime.now());
+	    chatMessage.setUser(isUser);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	    try {
 
-		return chatRepo.save(chatMessage);
+	        String prefix = isUser ? "User" : "Assistant";
+
+	        String fileName = "chat-logs/" + LocalDate.now() + ".txt";
+
+	        FileWriter writer = new FileWriter(fileName, true);
+
+	        writer.write(
+	            "[" + LocalDateTime.now() + "] "
+	            + prefix
+	            + ":\n"
+	            + content
+	            + "\n\n"
+	        );
+
+	        writer.close();
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    return chatRepo.save(chatMessage);
 	}
 
 	public List<ChatMessage> getAllChats() {

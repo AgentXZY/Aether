@@ -15,6 +15,7 @@ public class ChatMessage {
 	private Long chatId;
 	private String chatContent;
 	private LocalDateTime timestamp;
+	private boolean user;
 	
 	public ChatMessage() {
 	}
@@ -42,5 +43,8 @@ public class ChatMessage {
 	public void setTimestamp(LocalDateTime timestamp) {
 		this.timestamp = timestamp;
 	}
+	
+	public boolean isUser() { return user; }
+	public void setUser(boolean user) { this.user = user; }
 
 }
