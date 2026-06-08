@@ -11,13 +11,13 @@ import com.alfred_core.dto.SearchResultDto;
 @Service
 public class AlfredChatService {
 
-	private final SemanticSearchService semanticSearchService;
-    private final PdfSearchService pdfSearchService;
     private final PromptBuilderService promptBuilderService;
     private final AIProviderRouter providerRouter;
 //    private final QueryProcessorService queryProcessorService;
     private final ConversationContextService conversationContextService;
     private final ChatMessageService chatMessageService;
+//    private final EmbeddingService embeddingService;
+    private final RetrievalService retrievalService;
 
     public AlfredChatService(
             PdfSearchService pdfSearchService,
@@ -26,22 +26,24 @@ public class AlfredChatService {
             SemanticSearchService semanticSearchService,
 //            QueryProcessorService queryProcessorService,
             ConversationContextService conversationContextService,
-            ChatMessageService chatMessageService
+            ChatMessageService chatMessageService,
+            EmbeddingService embeddingService,
+            RetrievalService retrievalService
     ) {
-        this.pdfSearchService = pdfSearchService;
         this.promptBuilderService = promptBuilderService;
         this.providerRouter = providerRouter;
-        this.semanticSearchService = semanticSearchService;
 //        this.queryProcessorService = queryProcessorService;
         this.conversationContextService = conversationContextService;
         this.chatMessageService = chatMessageService;
+//        this.embeddingService = embeddingService;
+        this.retrievalService = retrievalService;
     }
 
     public ChatResponse ask(ChatRequest request) {
 
 //    	String normalizedQuery = queryProcessorService.normalize(request.getQuestion());
     	List<SearchResultDto> chunks =
-    	        semanticSearchService.search(
+    	        retrievalService.retrieve(
     	                request.getQuestion()
     	        );
 

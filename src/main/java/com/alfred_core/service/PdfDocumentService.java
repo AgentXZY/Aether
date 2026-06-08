@@ -88,11 +88,14 @@ public class PdfDocumentService {
 			chunk.setPageNumber(0);
 			chunk.setDocumentId(documentId);
 
-			List<Double> embedding = embeddingService.generateEmbedding(c);
+			List<Double> embedding =
+			        embeddingService.generateEmbedding(c);
 
-			chunk.setEmbedding(
-			        embedding.toString()
-			);
+			if (embedding != null) {
+			    chunk.setEmbedding(
+			            embedding.toString()
+			    );
+			}
 
 			chunkRepo.save(chunk);
 		}

@@ -1,10 +1,9 @@
 package com.alfred_core.service;
 
-import java.util.Comparator;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 import com.alfred_core.dto.SearchResultDto;
-import com.alfred_core.entity.PdfChunk;
 import com.alfred_core.repository.PdfChunkRepository;
 
 @Service
@@ -23,11 +22,15 @@ public class SemanticSearchService {
 
     public List<SearchResultDto> search(String question) {
 
-        List<Double> queryEmbedding =
-                embeddingService.generateEmbedding(question);
+    	List<Double> queryEmbedding =
+    	        embeddingService.generateEmbedding(question);
+
+    	if (queryEmbedding == null || queryEmbedding.isEmpty()) {
+    	    return List.of();
+    	}
 
         return chunkRepo.findAll()
-                .stream()
+                .stream().filter(c -> c.getEmbedding() != null && !c.getEmbedding().isBlank())
 
                 .sorted((c1, c2) -> {
 
