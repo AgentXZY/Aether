@@ -3,1398 +3,1633 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BATCOMPUTER — ALFRED AI ASSISTANT</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<title>AETHER — AI CORE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════════
+   AETHER — CYBERPUNK CORE VARIABLES
+═══════════════════════════════════════════ */
 :root {
-  --bg-deep: #020a14;
-  --bg-panel: #030d1a;
-  --bg-card: #041020;
-  --bg-card2: #051428;
-  --blue-primary: #1a8fff;
-  --blue-bright: #00cfff;
-  --blue-glow: #0af;
-  --blue-dim: #0a4a7a;
-  --blue-faint: #071e35;
-  --text-main: #b8d8f0;
-  --text-bright: #e8f4ff;
-  --text-dim: #4a7a9b;
-  --text-muted: #2a4a6a;
-  --accent-high: #ff3b3b;
-  --accent-med: #ff9900;
-  --accent-low: #22cc77;
-  --border: rgba(26,143,255,0.2);
-  --border-bright: rgba(0,207,255,0.4);
-  --glow-sm: 0 0 8px rgba(0,207,255,0.4);
-  --glow-md: 0 0 20px rgba(0,207,255,0.3);
-  --glow-lg: 0 0 40px rgba(0,207,255,0.2);
+  --void:        #04070f;
+  --deep:        #060c18;
+  --panel:       #080f1e;
+  --card:        #0a1220;
+  --card2:       #0c1628;
+  --lift:        #101e34;
+  --cyan:        #00e5ff;
+  --cyan-dim:    rgba(0,229,255,0.25);
+  --cyan-faint:  rgba(0,229,255,0.06);
+  --violet:      #7b2fff;
+  --violet-dim:  rgba(123,47,255,0.3);
+  --green:       #00ff9d;
+  --green-dim:   rgba(0,255,157,0.2);
+  --red:         #ff2d55;
+  --amber:       #ffb700;
+  --text-hi:     #e8f4ff;
+  --text-mid:    #7a9ab8;
+  --text-lo:     #2e4d6a;
+  --border:      rgba(0,229,255,0.1);
+  --border-hot:  rgba(0,229,255,0.35);
+  --glow-cyan:   0 0 20px rgba(0,229,255,0.25), 0 0 60px rgba(0,229,255,0.08);
+  --glow-violet: 0 0 20px rgba(123,47,255,0.3);
+  --radius:      2px;
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+/* ═══════════════ RESET & BASE ═══════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100vw; height:100vh; overflow:hidden; }
 
 body {
-  background: var(--bg-deep);
-  color: var(--text-main);
-  font-family: 'Rajdhani', sans-serif;
+  background: var(--void);
+  color: var(--text-hi);
+  font-family: 'Syne', sans-serif;
   font-size: 13px;
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  user-select: none;
+  cursor: default;
 }
 
-/* ===== BOOTUP SEQUENCE ===== */
-#bootscreen {
-  position: fixed; inset: 0;
-  background: #000;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 30px;
-  animation: bootFade 0.6s ease 3.8s forwards;
+/* ═══════════════ CUSTOM CURSOR ═══════════════ */
+body { cursor: none; }
+#cursor {
+  position: fixed; width:16px; height:16px;
+  border:1px solid var(--cyan); border-radius:50%;
+  pointer-events:none; z-index:99999;
+  transform:translate(-50%,-50%);
+  transition: width .15s, height .15s, border-color .15s;
+  mix-blend-mode: screen;
 }
-@keyframes bootFade { to { opacity:0; pointer-events:none; } }
+#cursor-dot {
+  position: fixed; width:4px; height:4px;
+  background:var(--cyan); border-radius:50%;
+  pointer-events:none; z-index:99999;
+  transform:translate(-50%,-50%);
+  box-shadow: 0 0 8px var(--cyan);
+}
+body:has(button:hover) #cursor,
+body:has(a:hover) #cursor  { width:28px; height:28px; border-color:var(--violet); }
 
-.boot-bat {
-  width: 120px; height: 120px;
-  animation: bootBatPulse 0.8s ease-in-out infinite alternate;
+/* ═══════════════ BOOT SCREEN ═══════════════ */
+#boot {
+  position:fixed; inset:0; z-index:9000;
+  background:#000;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:24px;
+  animation: bootExit .5s cubic-bezier(.9,0,1,1) 4s forwards;
 }
-@keyframes bootBatPulse {
-  from { filter: drop-shadow(0 0 10px #0af) drop-shadow(0 0 30px #0af); opacity:0.7; }
-  to   { filter: drop-shadow(0 0 25px #0af) drop-shadow(0 0 60px #0af); opacity:1; }
+@keyframes bootExit { to { opacity:0; visibility:hidden; } }
+
+.boot-logo-wrap {
+  position:relative;
+  animation: bootLogoPulse 1s ease-in-out infinite alternate;
+}
+@keyframes bootLogoPulse {
+  from { filter: drop-shadow(0 0 12px var(--cyan)) drop-shadow(0 0 40px rgba(0,229,255,0.3)); }
+  to   { filter: drop-shadow(0 0 30px var(--cyan)) drop-shadow(0 0 80px rgba(0,229,255,0.6)); }
+}
+.boot-hexagon {
+  width:100px; height:100px;
+  position:relative;
+}
+.boot-hex-ring {
+  position:absolute; inset:0;
+  border:1px solid rgba(0,229,255,0.3);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: bootHexSpin 8s linear infinite;
+}
+.boot-hex-ring:nth-child(2) {
+  inset:10px;
+  border-color: rgba(123,47,255,0.4);
+  animation-direction: reverse;
+  animation-duration: 5s;
+}
+@keyframes bootHexSpin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+.boot-hex-core {
+  position:absolute; inset:20px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(123,47,255,0.1));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display:flex; align-items:center; justify-content:center;
+}
+.boot-letter {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight:800;
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan);
 }
 
+.boot-title-group { text-align:center; }
 .boot-title {
-  font-family: 'Orbitron', monospace;
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 12px;
-  color: #0af;
-  text-shadow: 0 0 20px #0af, 0 0 50px #0af;
-  animation: bootTitleIn 0.5s ease 0.2s both;
+  font-family:'Syne', sans-serif;
+  font-size:32px; font-weight:800;
+  letter-spacing:16px;
+  color: var(--text-hi);
+  text-shadow: 0 0 30px var(--cyan);
+  animation: bootTitleIn .6s cubic-bezier(.2,1,.4,1) .2s both;
 }
-@keyframes bootTitleIn { from { opacity:0; transform: scaleX(0.5); } to { opacity:1; transform: scaleX(1); } }
-
+@keyframes bootTitleIn { from{opacity:0;letter-spacing:30px} to{opacity:1;letter-spacing:16px} }
 .boot-sub {
-  font-family: 'Orbitron', monospace;
-  font-size: 10px;
-  letter-spacing: 6px;
-  color: #4a8aaa;
-  animation: bootTitleIn 0.5s ease 0.5s both;
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px; letter-spacing:5px;
+  color: var(--text-lo);
+  margin-top:6px;
+  animation: bootTitleIn .6s cubic-bezier(.2,1,.4,1) .5s both;
 }
 
-.boot-lines {
-  width: 400px;
-  animation: bootTitleIn 0.4s ease 0.8s both;
+.boot-log {
+  width:440px; min-height:110px;
+  border:1px solid rgba(0,229,255,0.1);
+  background: rgba(0,20,40,0.4);
+  padding:12px;
+  animation: bootTitleIn .4s ease .7s both;
 }
-.boot-line-item {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: #1a7faa;
-  padding: 3px 0;
-  overflow: hidden;
-  white-space: nowrap;
+.boot-log-line {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; color:#1a6a8a;
+  padding:2px 0;
+  opacity:0;
+  animation: bootLogLine .3s ease forwards;
 }
-.boot-line-item span { display: inline-block; animation: typeIn 0.05s steps(1) both; }
+@keyframes bootLogLine { to{opacity:1} }
+.boot-log-line .ok { color: var(--green); }
+.boot-log-line .tag { color: var(--cyan); }
 
-.boot-bar-wrap {
-  width: 400px;
-  animation: bootTitleIn 0.4s ease 1s both;
+.boot-progress-wrap {
+  width:440px;
+  animation: bootTitleIn .4s ease 1s both;
 }
-.boot-bar-label {
-  font-family: 'Orbitron', monospace;
-  font-size: 9px;
-  letter-spacing: 4px;
-  color: #2a7a9a;
-  margin-bottom: 8px;
+.boot-progress-label {
+  font-family:'JetBrains Mono', monospace;
+  font-size:9px; letter-spacing:4px;
+  color: var(--text-lo);
+  margin-bottom:8px;
+  display:flex; justify-content:space-between;
 }
-.boot-bar {
-  height: 3px;
-  background: #0a2030;
-  border: 1px solid #0a4060;
-  position: relative;
-  overflow: hidden;
+.boot-progress-label span { color:var(--cyan); animation: countUp 2.5s linear 1s both; }
+.boot-track {
+  height:2px; background: rgba(0,229,255,0.08);
+  position:relative; overflow:hidden;
 }
-.boot-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #0a5080, #0af, #0a5080);
-  background-size: 200% 100%;
-  animation: bootBarAnim 2.5s ease 1s forwards, bootBarShimmer 0.4s linear 1s infinite;
-  width: 0;
+.boot-fill {
+  height:100%; width:0;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  animation: bootFill 2.5s cubic-bezier(.4,0,.2,1) 1s forwards;
+  position:relative;
 }
-@keyframes bootBarAnim { to { width: 100%; } }
-@keyframes bootBarShimmer { from { background-position: 0% 0; } to { background-position: 200% 0; } }
+.boot-fill::after {
+  content:'';
+  position:absolute; top:0; right:-20px; bottom:0; width:40px;
+  background: radial-gradient(ellipse at right, rgba(0,229,255,0.8), transparent);
+}
+@keyframes bootFill { to{width:100%} }
 
-/* ===== SCANLINES OVERLAY ===== */
+/* scan line sweeping down on boot */
+.boot-scan {
+  position:absolute; inset:0; pointer-events:none;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,229,255,0.03) 50%, transparent 100%);
+  background-size: 100% 40px;
+  animation: bootScan 1.5s linear infinite;
+}
+@keyframes bootScan { from{background-position:0 -40px} to{background-position:0 100vh} }
+
+/* ═══════════════ SCANLINES PERSISTENT ═══════════════ */
 .scanlines {
-  position: fixed; inset: 0;
-  pointer-events: none;
-  z-index: 100;
+  position:fixed; inset:0; pointer-events:none; z-index:8000;
   background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.04) 2px,
-    rgba(0,0,0,0.04) 4px
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
   );
-  animation: scanlineMove 8s linear infinite;
 }
-@keyframes scanlineMove { from { background-position: 0 0; } to { background-position: 0 100px; } }
 
-/* ===== MAIN LAYOUT ===== */
+/* ═══════════════ APP SHELL ═══════════════ */
 #app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  opacity: 0;
-  animation: appIn 0.8s ease 4.2s forwards;
+  display:flex; flex-direction:column;
+  height:100vh; width:100vw;
+  opacity:0;
+  animation: appIn .8s ease 4.3s forwards;
+  position:relative;
 }
-@keyframes appIn { to { opacity:1; } }
+@keyframes appIn { to{opacity:1} }
 
-/* ===== TITLE BAR ===== */
-.titlebar {
-  height: 40px;
-  background: linear-gradient(180deg, #041828 0%, #020e1a 100%);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  position: relative;
-  flex-shrink: 0;
+/* corner frame decorations */
+#app::before, #app::after,
+#app > .corner-br, #app > .corner-bl {
+  content:''; position:absolute;
+  width:20px; height:20px;
+  border-color: rgba(0,229,255,0.2);
+  border-style:solid; pointer-events:none; z-index:10;
 }
-.titlebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.titlebar-bat-icon {
-  width: 22px; height: 22px;
-  filter: drop-shadow(0 0 6px #0af);
-  animation: iconPulse 3s ease-in-out infinite;
-}
-@keyframes iconPulse {
-  0%,100% { filter: drop-shadow(0 0 4px #0af); }
-  50% { filter: drop-shadow(0 0 12px #0af) drop-shadow(0 0 20px #05f); }
-}
-.titlebar-name {
-  font-family: 'Orbitron', monospace;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: var(--blue-bright);
-  text-shadow: var(--glow-sm);
-}
-.titlebar-chevron { color: #1a5a7a; font-size: 11px; }
+#app::before  { top:0;    left:0;  border-width:1px 0 0 1px; }
+#app::after   { top:0;    right:0; border-width:1px 1px 0 0; }
+#app > .corner-br { bottom:0; right:0; border-width:0 1px 1px 0; }
+#app > .corner-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
 
-.titlebar-center {
-  position: absolute;
-  left: 50%; transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-.titlebar-center-bat {
-  width: 36px; height: 18px;
-  filter: drop-shadow(0 0 8px #0af);
-  animation: centerBatGlow 2s ease-in-out infinite;
-}
-@keyframes centerBatGlow {
-  0%,100% { filter: drop-shadow(0 0 6px #0af); }
-  50% { filter: drop-shadow(0 0 16px #0af) drop-shadow(0 0 30px #00f); }
-}
-.titlebar-alfred-name {
-  font-family: 'Orbitron', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  color: var(--blue-bright);
-  text-shadow: 0 0 10px #0af;
-}
-.titlebar-alfred-sub {
-  font-family: 'Orbitron', monospace;
-  font-size: 7px;
-  letter-spacing: 4px;
-  color: #2a6a8a;
+/* ═══════════════ TOP BAR ═══════════════ */
+.topbar {
+  height:44px; flex-shrink:0;
+  background: linear-gradient(180deg, rgba(8,15,30,0.98) 0%, rgba(6,12,24,0.95) 100%);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center;
+  padding:0 16px; gap:16px;
+  position:relative;
 }
 
-.titlebar-icons {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  color: #2a6a8a;
-  font-size: 13px;
+.topbar-brand {
+  display:flex; align-items:center; gap:10px;
 }
-.titlebar-icons span { cursor: pointer; transition: color 0.2s; }
-.titlebar-icons span:hover { color: var(--blue-bright); }
-
-/* ===== BODY LAYOUT ===== */
-.main-body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  border-top: 1px solid var(--border);
+.brand-hex {
+  width:28px; height:28px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(123,47,255,0.15));
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(0,229,255,0.3);
+  animation: hexPulse 3s ease-in-out infinite;
+}
+@keyframes hexPulse {
+  0%,100%{ box-shadow:0 0 0 0 rgba(0,229,255,0.2); }
+  50%{ box-shadow:0 0 0 6px rgba(0,229,255,0); }
+}
+.brand-letter { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--cyan); }
+.brand-name {
+  font-family:'Syne',sans-serif; font-size:16px; font-weight:800;
+  letter-spacing:6px; color:var(--text-hi);
+  text-shadow:0 0 20px rgba(0,229,255,0.4);
+}
+.brand-version {
+  font-family:'JetBrains Mono', monospace; font-size:9px;
+  color:var(--text-lo); letter-spacing:2px; margin-top:1px;
 }
 
-/* ===== SIDEBAR ===== */
+.topbar-divider { width:1px; height:22px; background:var(--border); }
+
+.topbar-status { display:flex; align-items:center; gap:6px; }
+.status-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.status-label { font-family:'JetBrains Mono',monospace; font-size:10px; color: var(--text-mid); letter-spacing:1px; }
+
+.topbar-center {
+  position:absolute; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+}
+.topbar-center-name {
+  font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:8px; color:var(--cyan);
+  text-shadow:0 0 15px var(--cyan);
+}
+.topbar-center-sub {
+  font-family:'JetBrains Mono',monospace; font-size:8px;
+  letter-spacing:4px; color:var(--text-lo);
+}
+
+/* animated line under brand center */
+.topbar-line {
+  position:absolute; bottom:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent 0%, var(--cyan) 50%, transparent 100%);
+  opacity:0.15;
+  animation: topbarLineScan 4s linear infinite;
+}
+@keyframes topbarLineScan {
+  from{ background-position:-100% 0; } to{ background-position:200% 0; }
+}
+
+.topbar-actions {
+  margin-left:auto; display:flex; align-items:center; gap:6px;
+}
+.topbar-btn {
+  width:28px; height:28px;
+  background:transparent; border:1px solid rgba(0,229,255,0.1);
+  color:var(--text-lo); font-size:12px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .2s;
+}
+.topbar-btn:hover { border-color:var(--cyan-dim); color:var(--cyan); }
+.topbar-btn.close:hover { border-color:rgba(255,45,85,0.4); color:var(--red); }
+
+/* provider toggle */
+.provider-toggle {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(0,229,255,0.04); border:1px solid var(--border);
+  padding:4px 10px; cursor:pointer;
+}
+.provider-toggle-label { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-lo); }
+.toggle-track {
+  width:32px; height:16px; background:rgba(0,229,255,0.08);
+  border:1px solid rgba(0,229,255,0.2); border-radius:8px;
+  position:relative; transition:background .3s;
+}
+.toggle-track.on { background:rgba(123,47,255,0.3); border-color:rgba(123,47,255,0.5); }
+.toggle-knob {
+  position:absolute; top:2px; left:2px;
+  width:10px; height:10px; border-radius:50%;
+  background:var(--text-lo); transition:all .3s;
+  box-shadow:0 0 4px rgba(0,0,0,0.5);
+}
+.toggle-track.on .toggle-knob { left:18px; background:var(--violet); box-shadow:0 0 8px var(--violet); }
+.provider-name { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-mid); min-width:50px; }
+.provider-name.cloud { color:var(--violet); }
+
+/* ═══════════════ MAIN BODY ═══════════════ */
+.body-wrap {
+  flex:1; display:flex; overflow:hidden;
+}
+
+/* ═══════════════ SIDEBAR ═══════════════ */
 .sidebar {
-  width: 175px;
-  background: linear-gradient(180deg, #031220 0%, #020a14 100%);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
+  width:56px; flex-shrink:0;
+  background:linear-gradient(180deg, var(--panel) 0%, var(--deep) 100%);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  align-items:center; padding:8px 0;
+  gap:2px;
+  position:relative; overflow:hidden;
 }
-.sidebar-nav {
-  flex: 1;
-  padding: 8px 0;
+.sidebar::after {
+  content:''; position:absolute; right:0; top:0; bottom:0; width:1px;
+  background: linear-gradient(180deg, transparent, var(--cyan-dim), transparent);
+  animation: sidebarGlow 4s ease-in-out infinite;
 }
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 16px;
-  cursor: pointer;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: var(--text-dim);
-  transition: all 0.2s;
-  position: relative;
-  text-transform: uppercase;
-}
-.nav-item:hover { color: var(--text-bright); background: rgba(0,180,255,0.04); }
-.nav-item.active {
-  color: var(--blue-bright);
-  background: linear-gradient(90deg, rgba(0,180,255,0.12) 0%, transparent 100%);
-}
-.nav-item.active::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--blue-bright);
-  box-shadow: 0 0 8px var(--blue-bright);
-}
-.nav-icon { width: 16px; text-align: center; font-size: 13px; }
-.nav-ai-badge {
-  margin-left: auto;
-  background: #0a3a5a;
-  border: 1px solid #1a6a8a;
-  color: #0af;
-  font-size: 8px;
-  font-family: 'Orbitron', monospace;
-  padding: 1px 5px;
-  border-radius: 2px;
-}
+@keyframes sidebarGlow { 0%,100%{opacity:0.3} 50%{opacity:1} }
 
-.sidebar-user {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.sidebar-item {
+  width:40px; height:40px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; border:1px solid transparent;
+  color:var(--text-lo); font-size:16px;
+  transition:all .2s; position:relative;
+  border-radius:var(--radius);
 }
-.sidebar-user-icon { font-size: 16px; color: var(--text-dim); }
-.sidebar-user-info { }
-.sidebar-user-label { font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; }
-.sidebar-user-name { font-size: 12px; font-weight: 700; color: var(--text-bright); letter-spacing: 1px; }
-.sidebar-user-clearance { font-size: 9px; color: #2a8a5a; letter-spacing: 1px; }
-.sidebar-user-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22cc77; margin-right: 4px; animation: dotPulse 1.5s ease-in-out infinite; }
-@keyframes dotPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(34,204,119,0.6); } 50%{ box-shadow:0 0 0 4px rgba(34,204,119,0); } }
+.sidebar-item:hover { color:var(--cyan); background:var(--cyan-faint); border-color:var(--border); }
+.sidebar-item.active {
+  color:var(--cyan);
+  background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(123,47,255,0.05));
+  border-color:rgba(0,229,255,0.25);
+  box-shadow: inset 0 0 12px rgba(0,229,255,0.05);
+}
+.sidebar-item.active::before {
+  content:''; position:absolute; left:-1px; top:25%; bottom:25%;
+  width:2px; background:var(--cyan); box-shadow:0 0 8px var(--cyan);
+}
+.sidebar-tooltip {
+  position:absolute; left:calc(100% + 12px);
+  background:var(--card); border:1px solid var(--border);
+  padding:4px 8px;
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  letter-spacing:2px; color:var(--text-mid);
+  white-space:nowrap; pointer-events:none;
+  opacity:0; transform:translateX(-6px);
+  transition:all .15s;
+  z-index:100;
+}
+.sidebar-item:hover .sidebar-tooltip { opacity:1; transform:translateX(0); }
 
-.sidebar-bat-emblem {
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-}
-.sidebar-bat-svg {
-  width: 90px; height: 90px;
-  opacity: 0.15;
-  animation: sidebarBatSpin 20s linear infinite;
-  filter: drop-shadow(0 0 10px #0af);
-}
-@keyframes sidebarBatSpin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+.sidebar-sep { width:24px; height:1px; background:var(--border); margin:4px 0; }
 
-/* ===== CONTENT ===== */
+.sidebar-bottom { margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:2px; }
+
+/* ═══════════════ CONTENT GRID ═══════════════ */
 .content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  flex:1; display:grid;
+  grid-template-columns: 210px 1fr 280px;
+  grid-template-rows: 1fr;
+  overflow:hidden;
 }
 
-.content-main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 200px 1fr 260px 220px;
-  grid-template-rows: 1fr auto;
-  gap: 0;
-  overflow: hidden;
+/* ═══════════════ LEFT PANEL ═══════════════ */
+.panel-left {
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--deep) 100%);
 }
 
-/* ===== CARD BASE ===== */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
+/* ═══════════════ SECTION HEADER ═══════════════ */
+.sec-head {
+  padding:8px 12px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:7px;
+  flex-shrink:0;
 }
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--blue-dim), transparent);
-  animation: cardTopScan 4s linear infinite;
+.sec-head-icon {
+  width:18px; height:18px;
+  background:var(--cyan-faint);
+  border:1px solid rgba(0,229,255,0.15);
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; color:var(--cyan);
 }
-@keyframes cardTopScan {
-  0% { background-position: -100% 0; }
-  100% { background-position: 200% 0; }
+.sec-head-text {
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px; letter-spacing:3px;
+  color:var(--text-lo); text-transform:uppercase; flex:1;
 }
-.card-header {
-  padding: 8px 12px;
-  font-family: 'Orbitron', monospace;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  color: #2a8aaa;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(26,143,255,0.1);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-header::before {
-  content: '';
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #0af;
-  box-shadow: 0 0 6px #0af;
-  animation: dotPulse 2s ease-in-out infinite;
-  flex-shrink: 0;
+.sec-head-badge {
+  font-family:'JetBrains Mono',monospace; font-size:8px;
+  color:var(--cyan); background:var(--cyan-faint);
+  border:1px solid rgba(0,229,255,0.15);
+  padding:1px 5px; border-radius:1px;
 }
 
-/* ===== LEFT COLUMN ===== */
-.col-left {
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
+/* ═══════════════ METRICS BLOCK ═══════════════ */
+.metrics-block { padding:10px 12px; flex-shrink:0; }
+
+.metric-row {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:9px;
+}
+.metric-label {
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  color:var(--text-lo); letter-spacing:1px; width:52px; flex-shrink:0;
+}
+.metric-bar { flex:1; height:2px; background:rgba(0,229,255,0.06); overflow:hidden; }
+.metric-fill {
+  height:100%; border-radius:0;
+  position:relative; transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.metric-fill.cpu    { background: linear-gradient(90deg, #0a5080, var(--cyan)); }
+.metric-fill.mem    { background: linear-gradient(90deg, #3a1080, var(--violet)); }
+.metric-fill.disk   { background: linear-gradient(90deg, #005040, var(--green)); }
+.metric-fill.net    { background: linear-gradient(90deg, #503000, var(--amber)); }
+.metric-fill::after {
+  content:''; position:absolute; top:0; right:0; bottom:0; width:10px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+  animation: metricShine 2s linear infinite;
+}
+@keyframes metricShine { from{right:100%} to{right:-10px} }
+.metric-val {
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  color:var(--text-mid); width:28px; text-align:right; flex-shrink:0;
 }
 
-.system-status { flex-shrink: 0; }
-.status-body { padding: 10px 12px; }
-.status-ok { font-size: 10px; color: #22cc77; margin-bottom: 10px; letter-spacing: 1px; }
-
-.waveform {
-  height: 30px;
-  margin-bottom: 12px;
-  position: relative;
-  overflow: hidden;
-}
-.waveform svg { width: 100%; height: 100%; }
-.waveform-path {
-  fill: none;
-  stroke: #0a5a7a;
-  stroke-width: 1.5;
-  animation: waveAnim 3s linear infinite;
-}
-@keyframes waveAnim { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
-
-.stat-row { margin-bottom: 8px; }
-.stat-label { font-size: 10px; color: #3a7a9a; letter-spacing: 1px; margin-bottom: 3px; display: flex; justify-content: space-between; }
-.stat-val { color: var(--text-main); }
-.stat-bar { height: 3px; background: #0a1e30; border-radius: 1px; overflow: hidden; }
-.stat-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #0a4a7a, var(--blue-bright));
-  border-radius: 1px;
-  position: relative;
-  animation: statFlicker 4s ease-in-out infinite;
-}
-@keyframes statFlicker { 0%,100%{opacity:1} 50%{opacity:0.8} }
-.stat-fill::after {
-  content: '';
-  position: absolute; top:0; right:0; bottom:0; width:20px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
-  animation: statShine 2s linear infinite;
-}
-@keyframes statShine { from{right:100%} to{right:-20px} }
-
-.weather-card { flex-shrink: 0; }
-.weather-body { padding: 10px 12px; display: flex; align-items: center; gap: 12px; }
-.weather-icon-wrap { font-size: 32px; color: #4a8aaa; animation: cloudFloat 3s ease-in-out infinite; }
-@keyframes cloudFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-.weather-temp { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 700; color: var(--text-bright); }
-.weather-feel { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
-.weather-stats { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
-.weather-city { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: #1a6a8a; margin-bottom: 2px; }
-.weather-cond { font-size: 10px; color: #2a8aaa; letter-spacing: 2px; }
-
-.events-card { flex: 1; overflow: hidden; }
-.events-body { padding: 8px 0; }
-.event-item { display: flex; align-items: center; gap: 8px; padding: 6px 12px; }
-.event-time { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: #1a7a9a; width: 40px; flex-shrink: 0; }
-.event-name { font-size: 11px; color: var(--text-main); }
-
-/* ===== CENTER COLUMN ===== */
-.col-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background: radial-gradient(ellipse at center, #030e1e 0%, var(--bg-deep) 70%);
+/* Live waveform canvas */
+.waveform-wrap { padding:0 12px 10px; flex-shrink:0; }
+#waveCanvas {
+  width:100%; height:34px; display:block;
+  border:1px solid var(--border);
+  background:rgba(0,229,255,0.02);
 }
 
-.center-greeting { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 4px; color: #0af; margin-bottom: 8px; text-shadow: 0 0 10px #0af; }
-.center-name { font-family: 'Orbitron', monospace; font-size: 40px; font-weight: 900; letter-spacing: 10px; color: var(--blue-bright); text-shadow: 0 0 20px #0af, 0 0 50px #08f; margin-bottom: 12px; }
-.center-wave { width: 120px; height: 20px; margin-bottom: 30px; }
-.center-wave path { fill: none; stroke: #0af; stroke-width: 1.5; animation: centerWave 2s ease-in-out infinite; }
-@keyframes centerWave { 0%,100%{opacity:0.5} 50%{opacity:1} }
+/* ═══════════════ STATUS PILLS ═══════════════ */
+.status-pills { padding:0 12px 10px; flex-shrink:0; display:flex; flex-direction:column; gap:5px; }
+.status-pill {
+  display:flex; align-items:center; gap:8px;
+  padding:5px 8px;
+  background:var(--cyan-faint);
+  border:1px solid var(--border);
+}
+.pill-dot {
+  width:5px; height:5px; border-radius:50%;
+  flex-shrink:0;
+}
+.pill-dot.green { background:var(--green); box-shadow:0 0 6px var(--green); animation:statusPulse 2s ease-in-out infinite; }
+.pill-dot.cyan  { background:var(--cyan);  box-shadow:0 0 6px var(--cyan);  animation:statusPulse 2.5s ease-in-out infinite; }
+.pill-dot.amber { background:var(--amber); box-shadow:0 0 6px var(--amber); animation:statusPulse 3s ease-in-out infinite; }
+.pill-text { flex:1; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-mid); letter-spacing:1px; }
+.pill-status { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--green); letter-spacing:1px; }
+.pill-status.amber { color:var(--amber); }
 
-/* === RADAR ANIMATION === */
-.radar-wrap {
-  position: relative;
-  width: 320px; height: 320px;
-  margin-bottom: 20px;
+/* ═══════════════ DOCS LIST ═══════════════ */
+.docs-section { flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+.docs-list { flex:1; overflow-y:auto; padding:6px 0; scrollbar-width:none; }
+.doc-item {
+  display:flex; align-items:center; gap:8px;
+  padding:6px 12px; cursor:pointer;
+  border-bottom:1px solid rgba(0,229,255,0.03);
+  transition:background .15s;
 }
-.radar-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  animation: radarPulse 3s ease-in-out infinite;
+.doc-item:hover { background:var(--cyan-faint); }
+.doc-icon { font-size:12px; color:var(--text-lo); flex-shrink:0; }
+.doc-info { flex:1; min-width:0; }
+.doc-name {
+  font-size:11px; color:var(--text-mid);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.radar-ring:nth-child(1) { width: 320px; height: 320px; border-color: rgba(0,180,255,0.08); animation-delay: 0s; }
-.radar-ring:nth-child(2) { width: 260px; height: 260px; border-color: rgba(0,180,255,0.12); animation-delay: 0.3s; }
-.radar-ring:nth-child(3) { width: 200px; height: 200px; border-color: rgba(0,180,255,0.18); animation-delay: 0.6s; }
-.radar-ring:nth-child(4) { width: 140px; height: 140px; border-color: rgba(0,180,255,0.25); animation-delay: 0.9s; }
-.radar-ring:nth-child(5) { width: 80px; height: 80px; border-color: rgba(0,180,255,0.3); animation-delay: 1.2s; }
-@keyframes radarPulse {
-  0%,100% { opacity:0.5; }
-  50% { opacity:1; }
-}
+.doc-meta { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-lo); margin-top:1px; }
+.doc-status { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 4px var(--green); flex-shrink:0; }
 
-.radar-line-h, .radar-line-v {
-  position: absolute;
-  top: 50%; left: 50%;
-  background: rgba(0,180,255,0.15);
+.upload-zone {
+  margin:8px 12px;
+  border:1px dashed rgba(0,229,255,0.15);
+  padding:10px;
+  text-align:center; cursor:pointer;
+  transition:all .2s; position:relative;
+  flex-shrink:0;
 }
-.radar-line-h { width: 320px; height: 1px; transform: translate(-50%, -50%); }
-.radar-line-v { width: 1px; height: 320px; transform: translate(-50%, -50%); }
-
-.radar-sweep {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 160px; height: 160px;
-  margin-top: -160px; margin-left: 0;
-  transform-origin: 0% 100%;
-  animation: sweep 4s linear infinite;
+.upload-zone:hover { border-color:var(--cyan-dim); background:var(--cyan-faint); }
+.upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.upload-zone-text { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-lo); letter-spacing:1px; }
+.upload-zone-text span { color:var(--cyan); }
+.upload-progress {
+  margin:0 12px 8px;
+  display:none;
 }
-@keyframes sweep { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.radar-sweep-beam {
-  width: 100%; height: 100%;
-  background: conic-gradient(from -30deg, transparent 0deg, rgba(0,180,255,0.15) 30deg, transparent 60deg);
-  border-radius: 100% 100% 0 0 / 100% 100% 0 0;
-}
-
-.bat-center-svg {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 110px;
-  filter: drop-shadow(0 0 15px #0af) drop-shadow(0 0 30px #05f);
-  animation: batCenterGlow 2s ease-in-out infinite;
-}
-@keyframes batCenterGlow {
-  0%,100% { filter: drop-shadow(0 0 12px #0af) drop-shadow(0 0 25px #05f); }
-  50% { filter: drop-shadow(0 0 25px #0af) drop-shadow(0 0 60px #05f) drop-shadow(0 0 80px #02f); }
+.upload-progress.show { display:block; }
+.up-track { height:2px; background:var(--cyan-faint); overflow:hidden; }
+.up-fill { height:100%; background:var(--cyan); width:0; transition:width .3s; animation:upScan .6s linear infinite; }
+@keyframes upScan {
+  from{background-position:0 0} to{background-position:40px 0}
 }
 
-.radar-dots {
-  position: absolute;
-  inset: 0;
-  animation: dotsRotate 12s linear infinite;
+/* ═══════════════ SYSTEM LOG ═══════════════ */
+.syslog-section { flex-shrink:0; border-top:1px solid var(--border); }
+.syslog-body { height:90px; overflow-y:auto; padding:6px; scrollbar-width:none; }
+.log-entry {
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  color: rgba(0,229,255,0.35); padding:1px 0; line-height:1.6;
 }
-@keyframes dotsRotate { from{transform:rotate(0)} to{transform:rotate(360deg)} }
-.radar-dot {
-  position: absolute;
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  background: #0af;
-  box-shadow: 0 0 6px #0af;
-  animation: dotBlink 1.5s ease-in-out infinite;
-}
-@keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.log-entry .ts   { color: rgba(0,229,255,0.2); }
+.log-entry .tag  { }
+.log-entry .tag.sys  { color:rgba(0,255,157,0.5); }
+.log-entry .tag.ai   { color:rgba(0,229,255,0.5); }
+.log-entry .tag.net  { color:rgba(255,183,0,0.5); }
+.log-entry .tag.err  { color:rgba(255,45,85,0.7); }
+.log-entry .msg  { color:rgba(122,154,184,0.7); }
 
-.center-how { font-size: 14px; color: #2a8aaa; letter-spacing: 2px; margin-bottom: 20px; }
-
-.center-input-wrap {
-  width: 460px;
-  position: relative;
-  margin-bottom: 16px;
-}
-.center-input {
-  width: 100%;
-  background: rgba(0,20,40,0.8);
-  border: 1px solid var(--blue-dim);
-  color: var(--text-main);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 13px;
-  padding: 10px 40px 10px 16px;
-  outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-.center-input:focus { border-color: #0af; box-shadow: 0 0 15px rgba(0,180,255,0.2); }
-.center-input::placeholder { color: #1a4a6a; }
-.center-mic {
-  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  color: #2a6a8a; font-size: 16px; cursor: pointer;
-  animation: micPulse 2s ease-in-out infinite;
-}
-@keyframes micPulse { 0%,100%{color:#2a6a8a} 50%{color:#0af; filter:drop-shadow(0 0 4px #0af); } }
-
-.suggested-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 8px 12px;
-}
-.sa-label { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-right: 4px; }
-.sa-btn {
-  display: flex; align-items: center; gap: 5px;
-  background: rgba(0,20,40,0.6);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  font-size: 11px;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 600;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.5px;
-}
-.sa-btn:hover { border-color: #0af; color: var(--blue-bright); background: rgba(0,180,255,0.08); box-shadow: 0 0 10px rgba(0,180,255,0.1); }
-.sa-btn-icon { font-size: 11px; }
-
-/* ===== RIGHT COL - ALFRED CONSOLE ===== */
-.col-right {
-  border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-}
-.alfred-console { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.alfred-chat {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  scrollbar-width: thin;
-  scrollbar-color: #0a3a5a transparent;
-}
-.chat-msg { display: flex; gap: 8px; align-items: flex-start; }
-.chat-avatar {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--blue-dim);
-  overflow: hidden;
-  flex-shrink: 0;
-  background: #0a1e30;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-}
-.chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.chat-bubble { flex: 1; }
-.chat-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-.chat-sender { font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; color: var(--blue-bright); letter-spacing: 1px; }
-.chat-role { font-size: 8px; color: var(--text-muted); letter-spacing: 1px; }
-.chat-time { margin-left: auto; font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-muted); }
-.chat-text { font-size: 12px; color: var(--text-main); line-height: 1.5; }
-.chat-actions { display: flex; gap: 6px; margin-top: 6px; }
-.chat-action-btn { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(0,20,40,0.6); border: 1px solid var(--border); color: var(--text-dim); font-size: 12px; cursor: pointer; transition: all 0.2s; }
-.chat-action-btn:hover { border-color: #0af; color: #0af; }
-
-.chat-input-row {
-  padding: 8px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 6px;
-}
-.chat-input {
-  flex: 1;
-  background: rgba(0,15,30,0.8);
-  border: 1px solid var(--border);
-  color: var(--text-main);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 12px;
-  padding: 6px 10px;
-  outline: none;
-}
-.chat-input:focus { border-color: #0af; }
-.chat-input::placeholder { color: #1a4a6a; }
-.chat-send { background: rgba(0,50,100,0.4); border: 1px solid var(--blue-dim); color: #0af; padding: 6px 10px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-.chat-send:hover { background: rgba(0,100,180,0.3); box-shadow: 0 0 10px rgba(0,180,255,0.2); }
-
-/* ===== FAR RIGHT - MISSION OVERVIEW ===== */
-.col-far-right {
-  border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* ═══════════════ CENTER PANEL ═══════════════ */
+.panel-center {
+  display:flex; flex-direction:column;
+  position:relative; overflow:hidden;
+  background: radial-gradient(ellipse at 50% 40%, rgba(0,229,255,0.03) 0%, transparent 60%),
+              radial-gradient(ellipse at 50% 80%, rgba(123,47,255,0.02) 0%, transparent 50%),
+              var(--deep);
 }
 
-.mission-card { flex-shrink: 0; }
-.mission-img {
-  height: 120px;
-  background: linear-gradient(135deg, #051828 0%, #0a2a3a 50%, #031018 100%);
-  position: relative;
-  overflow: hidden;
-}
-.gotham-skyline {
-  position: absolute; inset: 0;
-  display: flex; align-items: flex-end; justify-content: center;
-  padding-bottom: 5px;
-}
-.skyline-city { color: #0a2a3a; font-size: 10px; }
-.mission-sky { position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 30%, #0a1e30 0%, #020810 60%); }
-.mission-clouds { position: absolute; inset: 0; }
-.cloud { position: absolute; border-radius: 50%; background: rgba(20,60,90,0.4); }
-.bat-signal {
-  position: absolute;
-  bottom: 20px; right: 20px;
-  width: 50px; height: 50px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(255,240,100,0.15) 0%, transparent 70%);
-  animation: batSignal 3s ease-in-out infinite;
-}
-@keyframes batSignal { 0%,100%{opacity:0.3} 50%{opacity:0.8} }
-.mission-info { padding: 8px 12px; }
-.mission-city { font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text-bright); }
-.mission-tagline { font-size: 10px; color: #1a6a8a; letter-spacing: 2px; }
-
-.threats-card { flex-shrink: 0; }
-.threat-item { display: flex; align-items: center; gap: 8px; padding: 5px 12px; }
-.threat-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.threat-name { flex: 1; font-size: 11px; color: var(--text-main); letter-spacing: 0.5px; }
-.threat-level { font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
-.threat-high { color: var(--accent-high); }
-.threat-med { color: var(--accent-med); }
-.threat-dot.high { background: var(--accent-high); box-shadow: 0 0 6px var(--accent-high); animation: threatPulse 1s ease-in-out infinite; }
-.threat-dot.med { background: var(--accent-med); box-shadow: 0 0 6px var(--accent-med); animation: threatPulse 1.5s ease-in-out infinite; }
-@keyframes threatPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.view-intel { padding: 6px 12px; text-align: right; font-family: 'Orbitron', monospace; font-size: 8px; color: #0af; letter-spacing: 1px; cursor: pointer; border-top: 1px solid var(--border); }
-.view-intel:hover { color: var(--blue-bright); }
-
-.syslog-card { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-.syslog-body { flex: 1; overflow-y: auto; padding: 8px; scrollbar-width: thin; scrollbar-color: #0a3a5a transparent; }
-.log-line { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #1a6a8a; padding: 1.5px 0; }
-.log-line span.log-ts { color: #0a4a6a; }
-.log-line span.log-sys { color: #2a7a5a; }
-.log-line span.log-ai { color: #1a6a9a; }
-.log-line span.log-msg { color: #3a8a7a; }
-
-.gotham3d {
-  height: 110px;
-  background: radial-gradient(ellipse at center bottom, #0a2030 0%, #020810 70%);
-  position: relative;
-  overflow: hidden;
-  display: flex; align-items: flex-end; justify-content: center;
-}
-.gotham3d-svg { width: 100%; opacity: 0.5; }
-
-/* ===== BOTTOM ROW ===== */
-.bottom-row {
-  display: grid;
-  grid-template-columns: 200px 1fr 1fr;
-  border-top: 1px solid var(--border);
-  height: 170px;
-  flex-shrink: 0;
+/* ambient grid */
+.panel-center::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  mask: radial-gradient(ellipse at center, black 0%, transparent 70%);
 }
 
-.activity-card { border-right: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
-.activity-body { flex: 1; overflow-y: auto; scrollbar-width: none; }
-.activity-item { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-bottom: 1px solid rgba(26,143,255,0.05); }
-.act-icon { font-size: 11px; color: #1a6a8a; }
-.act-name { flex: 1; font-size: 11px; color: var(--text-main); }
-.act-time { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-muted); }
-.view-all { padding: 5px 12px; border-top: 1px solid var(--border); font-size: 10px; color: #0a5a7a; text-align: right; cursor: pointer; letter-spacing: 1px; }
-.view-all:hover { color: #0af; }
-
-.tasks-card { border-right: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
-.tasks-tabs { display: flex; padding: 0 12px; gap: 12px; border-bottom: 1px solid rgba(26,143,255,0.1); }
-.task-tab { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px; padding: 6px 0; color: var(--text-muted); cursor: pointer; transition: color 0.2s; position: relative; }
-.task-tab.active { color: #0af; }
-.task-tab.active::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:1px; background:#0af; box-shadow:0 0 6px #0af; }
-.tasks-body { flex: 1; overflow-y: auto; scrollbar-width: none; }
-.task-item { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid rgba(26,143,255,0.05); }
-.task-check { width: 14px; height: 14px; border: 1px solid var(--blue-dim); flex-shrink: 0; }
-.task-name { flex: 1; font-size: 11px; color: var(--text-main); }
-.task-pri { font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700; padding: 2px 6px; }
-.task-pri.high { color: var(--accent-high); border: 1px solid rgba(255,59,59,0.3); }
-.task-pri.med { color: var(--accent-med); border: 1px solid rgba(255,153,0,0.3); }
-.task-pri.low { color: var(--accent-low); border: 1px solid rgba(34,204,119,0.3); }
-.task-dot { width: 6px; height: 6px; border-radius: 50%; }
-.task-dot.high { background: var(--accent-high); box-shadow: 0 0 4px var(--accent-high); }
-.task-dot.med { background: var(--accent-med); box-shadow: 0 0 4px var(--accent-med); }
-.task-dot.low { background: var(--accent-low); box-shadow: 0 0 4px var(--accent-low); }
-
-/* ===== BOTTOM TASKBAR ===== */
-.taskbar {
-  height: 42px;
-  background: linear-gradient(180deg, #020e1a 0%, #020810 100%);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  flex-shrink: 0;
+/* hero section */
+.hero {
+  flex-shrink:0;
+  display:flex; flex-direction:column;
+  align-items:center; padding:28px 20px 16px;
+  position:relative;
 }
-.taskbar-nav { display: flex; align-items: center; gap: 6px; }
-.tb-item { display: flex; align-items: center; gap: 6px; padding: 5px 14px; color: var(--text-dim); font-size: 11px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-.tb-item:hover { color: #0af; }
-.tb-item-icon { font-size: 12px; }
-.tb-center { position: absolute; left: 50%; transform: translateX(-50%); }
-.tb-bat-btn { width: 44px; height: 44px; background: #0a1e30; border: 1px solid #1a6a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; animation: tbBatPulse 3s ease-in-out infinite; }
-@keyframes tbBatPulse { 0%,100%{box-shadow:0 0 8px rgba(0,180,255,0.3)} 50%{box-shadow:0 0 20px rgba(0,180,255,0.6), 0 0 40px rgba(0,100,200,0.3)} }
-.tb-bat-btn:hover { box-shadow: 0 0 30px rgba(0,180,255,0.8); background: #0d2840; }
-.tb-voice { display: flex; align-items: center; gap: 8px; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; color: #0af; border: 1px solid #0a3a5a; padding: 5px 12px; }
-.voice-wave { display: flex; gap: 2px; align-items: center; }
-.voice-bar { width: 2px; background: #0af; border-radius: 1px; animation: voiceBarAnim 0.8s ease-in-out infinite alternate; }
-.voice-bar:nth-child(1) { height: 6px; animation-delay: 0s; }
-.voice-bar:nth-child(2) { height: 10px; animation-delay: 0.1s; }
-.voice-bar:nth-child(3) { height: 14px; animation-delay: 0.2s; }
-.voice-bar:nth-child(4) { height: 10px; animation-delay: 0.3s; }
-.voice-bar:nth-child(5) { height: 6px; animation-delay: 0.4s; }
-@keyframes voiceBarAnim { from{height:4px; opacity:0.4} to{opacity:1} }
 
-/* Flicker effect on boot */
-.content-main { animation: screenFlicker 0.1s step-end 4.5s; }
-@keyframes screenFlicker { 0%{opacity:0} 50%{opacity:0.5} 100%{opacity:1} }
-
-/* Scrollbars */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #0a3050; border-radius: 2px; }
-
-/* Corner decorations */
-.corner-tl, .corner-tr, .corner-bl, .corner-br {
-  position: absolute;
-  width: 10px; height: 10px;
-  border-color: var(--blue-dim);
-  border-style: solid;
-  pointer-events: none;
+.hero-orb {
+  position:relative;
+  width:180px; height:180px;
+  margin-bottom:20px;
 }
-.corner-tl { top:0; left:0; border-width: 1px 0 0 1px; }
-.corner-tr { top:0; right:0; border-width: 1px 1px 0 0; }
-.corner-bl { bottom:0; left:0; border-width: 0 0 1px 1px; }
-.corner-br { bottom:0; right:0; border-width: 0 1px 1px 0; }
+.orb-ring {
+  position:absolute; border-radius:50%;
+  border:1px solid;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+.orb-ring:nth-child(1){ width:180px;height:180px; border-color:rgba(0,229,255,0.06); animation:orbSpin 20s linear infinite; }
+.orb-ring:nth-child(2){ width:148px;height:148px; border-color:rgba(0,229,255,0.1);  animation:orbSpin 14s linear infinite reverse; }
+.orb-ring:nth-child(3){ width:116px;height:116px; border-color:rgba(123,47,255,0.15); animation:orbSpin 10s linear infinite; }
+.orb-ring:nth-child(4){ width:84px; height:84px;  border-color:rgba(0,229,255,0.2);  animation:orbSpin 7s  linear infinite reverse; }
+@keyframes orbSpin { from{transform:translate(-50%,-50%) rotate(0)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+
+/* tick marks on rings */
+.orb-ring::before {
+  content:''; position:absolute; top:-2px; left:50%; width:3px; height:3px;
+  background:var(--cyan); border-radius:50%;
+  box-shadow:0 0 6px var(--cyan);
+}
+
+.orb-sweep {
+  position:absolute; top:50%; left:50%;
+  width:90px; height:90px;
+  margin-top:-90px; margin-left:0;
+  transform-origin:0% 100%;
+  animation:orbSweep 4s linear infinite;
+}
+@keyframes orbSweep { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+.orb-sweep-beam {
+  width:100%; height:100%;
+  background: conic-gradient(from -45deg, transparent 0deg, rgba(0,229,255,0.12) 45deg, transparent 90deg);
+  border-radius:100% 100% 0 0 / 100% 100% 0 0;
+}
+
+.orb-core {
+  position:absolute; top:50%; left:50%;
+  width:52px; height:52px;
+  transform:translate(-50%,-50%);
+  background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(123,47,255,0.1));
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  border:1px solid rgba(0,229,255,0.3);
+  display:flex; align-items:center; justify-content:center;
+  animation:corePulse 3s ease-in-out infinite;
+}
+@keyframes corePulse {
+  0%,100%{ box-shadow:0 0 20px rgba(0,229,255,0.2); }
+  50%{ box-shadow:0 0 40px rgba(0,229,255,0.4), 0 0 80px rgba(123,47,255,0.2); }
+}
+.orb-core-letter {
+  font-family:'Syne',sans-serif; font-size:18px; font-weight:800;
+  color:var(--cyan); text-shadow:0 0 16px var(--cyan);
+}
+
+/* floating dots around orb */
+.orb-dots { position:absolute; inset:0; }
+.orb-dot {
+  position:absolute; width:4px; height:4px; border-radius:50%;
+  background:var(--cyan); box-shadow:0 0 6px var(--cyan);
+  animation:dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.5)} }
+
+.hero-greeting {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  letter-spacing:4px; color:var(--cyan);
+  text-shadow:0 0 12px var(--cyan);
+  margin-bottom:6px;
+  animation:breathe 4s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+.hero-name {
+  font-family:'Syne',sans-serif; font-size:42px; font-weight:800;
+  letter-spacing:14px; color:var(--text-hi);
+  text-shadow: 0 0 30px rgba(0,229,255,0.3), 0 0 80px rgba(0,229,255,0.1);
+  margin-bottom:4px;
+}
+.hero-tagline {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--text-lo); letter-spacing:3px; margin-bottom:20px;
+}
+
+/* ═══════════════ INPUT AREA ═══════════════ */
+.input-section {
+  flex-shrink:0; padding:0 24px 12px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.input-frame {
+  display:flex; gap:0;
+  border:1px solid rgba(0,229,255,0.2);
+  background:rgba(0,15,30,0.6);
+  position:relative; overflow:hidden;
+  transition:border-color .3s, box-shadow .3s;
+}
+.input-frame:focus-within {
+  border-color:rgba(0,229,255,0.5);
+  box-shadow:0 0 20px rgba(0,229,255,0.08), inset 0 0 20px rgba(0,229,255,0.02);
+}
+.input-frame::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity:0; transition:opacity .3s;
+}
+.input-frame:focus-within::before { opacity:0.4; }
+
+.input-prefix {
+  display:flex; align-items:center;
+  padding:0 12px;
+  font-family:'JetBrains Mono',monospace; font-size:12px;
+  color:var(--cyan); opacity:0.6;
+  border-right:1px solid var(--border);
+  flex-shrink:0;
+}
+#chatInput {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;
+  padding:12px 14px;
+}
+#chatInput::placeholder { color:var(--text-lo); }
+.input-actions { display:flex; align-items:center; gap:0; flex-shrink:0; }
+.input-btn {
+  width:44px; height:100%;
+  background:transparent; border:none;
+  border-left:1px solid var(--border);
+  color:var(--text-lo); font-size:14px;
+  cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; justify-content:center;
+}
+.input-btn:hover { background:var(--cyan-faint); color:var(--cyan); }
+.input-btn.send {
+  background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(123,47,255,0.08));
+  color:var(--cyan);
+  border-left-color:rgba(0,229,255,0.2);
+}
+.input-btn.send:hover {
+  background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(123,47,255,0.15));
+  box-shadow:0 0 15px rgba(0,229,255,0.15);
+}
+.input-btn.send.loading { animation:sendLoad 1s linear infinite; }
+@keyframes sendLoad { from{opacity:1} to{opacity:0.3} }
+
+.quick-actions {
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+.qa-btn {
+  display:flex; align-items:center; gap:5px;
+  background:rgba(0,229,255,0.04);
+  border:1px solid rgba(0,229,255,0.12);
+  color:var(--text-lo); font-family:'JetBrains Mono',monospace;
+  font-size:9px; letter-spacing:1px;
+  padding:5px 10px; cursor:pointer;
+  transition:all .2s;
+}
+.qa-btn:hover { border-color:var(--cyan-dim); color:var(--cyan); background:var(--cyan-faint); }
+
+/* ═══════════════ CHAT MESSAGES ═══════════════ */
+.chat-section {
+  flex:1; overflow:hidden; display:flex; flex-direction:column; min-height:0;
+}
+.chat-messages {
+  flex:1; overflow-y:auto; padding:12px 16px;
+  display:flex; flex-direction:column; gap:12px;
+  scrollbar-width:thin; scrollbar-color: rgba(0,229,255,0.2) transparent;
+}
+.chat-messages::-webkit-scrollbar { width:3px; }
+.chat-messages::-webkit-scrollbar-thumb { background:rgba(0,229,255,0.2); }
+
+.msg-wrap {
+  display:flex; gap:10px; align-items:flex-start;
+  opacity:0; transform:translateY(8px);
+  animation: msgIn .35s cubic-bezier(.2,1,.4,1) forwards;
+}
+@keyframes msgIn { to{opacity:1;transform:translateY(0)} }
+.msg-wrap.user { flex-direction:row-reverse; }
+
+.msg-avatar {
+  width:30px; height:30px; flex-shrink:0;
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  background:var(--card);
+  border:1px solid rgba(0,229,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-size:11px; font-weight:800;
+}
+.msg-avatar.ai   { color:var(--cyan); background:linear-gradient(135deg, rgba(0,229,255,0.1), rgba(123,47,255,0.08)); }
+.msg-avatar.user2 { color:var(--violet); background:linear-gradient(135deg, rgba(123,47,255,0.1), rgba(0,229,255,0.05)); }
+
+.msg-content { flex:1; max-width:80%; }
+.msg-wrap.user .msg-content { display:flex; flex-direction:column; align-items:flex-end; }
+
+.msg-meta {
+  display:flex; align-items:center; gap:6px; margin-bottom:4px;
+}
+.msg-wrap.user .msg-meta { flex-direction:row-reverse; }
+.msg-sender {
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  letter-spacing:2px;
+}
+.msg-sender.ai   { color:var(--cyan); }
+.msg-sender.user2 { color:var(--violet); }
+.msg-time { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-lo); }
+
+.msg-bubble {
+  padding:10px 14px;
+  border:1px solid;
+  font-size:12px; line-height:1.65; color:var(--text-hi);
+  position:relative; overflow:hidden;
+}
+.msg-bubble.ai {
+  background: linear-gradient(135deg, rgba(0,229,255,0.04), rgba(123,47,255,0.02));
+  border-color:rgba(0,229,255,0.12);
+}
+.msg-bubble.user2 {
+  background: linear-gradient(135deg, rgba(123,47,255,0.06), rgba(0,229,255,0.02));
+  border-color:rgba(123,47,255,0.18);
+}
+.msg-bubble::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity:0.2;
+}
+.msg-bubble.user2::after { background:linear-gradient(90deg, transparent, var(--violet), transparent); }
+
+/* source chunks */
+.msg-sources {
+  margin-top:8px; display:flex; flex-wrap:wrap; gap:4px;
+}
+.source-chip {
+  font-family:'JetBrains Mono',monospace; font-size:8px;
+  background:rgba(0,229,255,0.04); border:1px solid rgba(0,229,255,0.1);
+  color:var(--text-lo); padding:2px 6px; cursor:default;
+  letter-spacing:1px;
+}
+
+/* typing indicator */
+.typing-indicator {
+  display:flex; gap:4px; align-items:center; padding:8px 0;
+}
+.typing-dot {
+  width:5px; height:5px; border-radius:50%;
+  background:var(--cyan); opacity:0.4;
+  animation:typingAnim 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay:.2s; }
+.typing-dot:nth-child(3) { animation-delay:.4s; }
+@keyframes typingAnim { 0%,80%,100%{transform:scale(1);opacity:0.4} 40%{transform:scale(1.4);opacity:1} }
+
+/* ═══════════════ RIGHT PANEL ═══════════════ */
+.panel-right {
+  border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--deep) 100%);
+  overflow:hidden;
+}
+
+/* chat history */
+.history-section { flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+.history-list { flex:1; overflow-y:auto; scrollbar-width:none; }
+.history-item {
+  padding:8px 12px;
+  border-bottom:1px solid rgba(0,229,255,0.04);
+  cursor:pointer; transition:background .15s;
+  position:relative;
+}
+.history-item:hover { background:var(--cyan-faint); }
+.history-item::before {
+  content:''; position:absolute; left:0; top:20%; bottom:20%;
+  width:2px; background:transparent; transition:background .15s;
+}
+.history-item:hover::before { background:var(--cyan); box-shadow:0 0 6px var(--cyan); }
+.hist-role { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:2px; margin-bottom:3px; }
+.hist-role.user2 { color:var(--violet); }
+.hist-role.ai   { color:var(--cyan); }
+.hist-text { font-size:11px; color:var(--text-mid); line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hist-time { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-lo); margin-top:3px; }
+
+/* context viewer */
+.context-section { flex-shrink:0; border-top:1px solid var(--border); }
+.context-body { padding:10px 12px; }
+.context-item { margin-bottom:8px; }
+.ctx-file { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--cyan); letter-spacing:1px; margin-bottom:3px; }
+.ctx-score { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+.ctx-score-bar { flex:1; height:2px; background:rgba(0,229,255,0.08); overflow:hidden; }
+.ctx-score-fill { height:100%; background:linear-gradient(90deg, var(--cyan-dim), var(--cyan)); }
+.ctx-score-val { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-lo); }
+.ctx-snippet { font-size:10px; color:var(--text-lo); line-height:1.5; }
+
+/* ═══════════════ STATUS BAR ═══════════════ */
+.statusbar {
+  height:26px; flex-shrink:0;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  display:flex; align-items:center;
+  padding:0 14px; gap:12px;
+}
+.sb-item {
+  display:flex; align-items:center; gap:4px;
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  color:var(--text-lo); letter-spacing:1px;
+}
+.sb-item .dot { width:4px; height:4px; border-radius:50%; flex-shrink:0; }
+.sb-item .dot.green { background:var(--green); box-shadow:0 0 4px var(--green); }
+.sb-item .dot.cyan  { background:var(--cyan);  box-shadow:0 0 4px var(--cyan);  animation:statusPulse 2s ease-in-out infinite; }
+.sb-sep { width:1px; height:12px; background:var(--border); }
+.sb-right { margin-left:auto; }
+.sb-clock { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--cyan); letter-spacing:2px; }
+
+/* ═══════════════ SCROLLBAR GLOBAL ═══════════════ */
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(0,229,255,0.15); border-radius:0; }
 </style>
 </head>
 <body>
 
-<!-- BOOT SCREEN -->
-<div id="bootscreen">
-  <svg class="boot-bat" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 45 C30 45 15 35 5 20 C10 22 18 24 22 22 C18 18 14 12 10 5 C20 10 28 15 35 12 C38 8 43 5 50 5 C57 5 62 8 65 12 C72 15 80 10 90 5 C86 12 82 18 78 22 C82 24 90 22 95 20 C85 35 70 45 50 45Z" fill="#0af"/>
-  </svg>
-  <div class="boot-title">BATCOMPUTER</div>
-  <div class="boot-sub">ALFRED AI ASSISTANT — INITIALIZING</div>
-  <div class="boot-lines" id="bootLines"></div>
-  <div class="boot-bar-wrap">
-    <div class="boot-bar-label">SYSTEM INITIALIZATION</div>
-    <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- SCANLINES -->
+<div class="scanlines"></div>
+
+<!-- ═══════════ BOOT SCREEN ═══════════ -->
+<div id="boot">
+  <div class="boot-scan"></div>
+
+  <div class="boot-logo-wrap">
+    <div class="boot-hexagon">
+      <div class="boot-hex-ring"></div>
+      <div class="boot-hex-ring"></div>
+      <div class="boot-hex-core"><span class="boot-letter">A</span></div>
+    </div>
+  </div>
+
+  <div class="boot-title-group">
+    <div class="boot-title">AETHER</div>
+    <div class="boot-sub">AI CORE SYSTEM — INITIALIZING</div>
+  </div>
+
+  <div class="boot-log" id="bootLog"></div>
+
+  <div class="boot-progress-wrap">
+    <div class="boot-progress-label">
+      <span style="letter-spacing:3px">SYSTEM BOOT</span>
+      <span id="bootPct">0%</span>
+    </div>
+    <div class="boot-track"><div class="boot-fill"></div></div>
   </div>
 </div>
 
-<div class="scanlines"></div>
-
+<!-- ═══════════ APP ═══════════ -->
 <div id="app">
-  <!-- TITLEBAR -->
-  <div class="titlebar">
-    <div class="titlebar-logo">
-      <svg class="titlebar-bat-icon" viewBox="0 0 40 24" fill="none">
-        <path d="M20 18C12 18 6 14 2 8C4 9 7 10 9 9C7 7 5 5 4 2C8 4 11 6 14 5C15 3 17 2 20 2C23 2 25 3 26 5C29 6 32 4 36 2C35 5 33 7 31 9C33 10 36 9 38 8C34 14 28 18 20 18Z" fill="#0af"/>
-      </svg>
-      <span class="titlebar-name">BATCOMPUTER</span>
-      <span class="titlebar-chevron">›</span>
+  <div class="corner-br"></div>
+  <div class="corner-bl"></div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-hex"><span class="brand-letter">A</span></div>
+      <div>
+        <div class="brand-name">AETHER</div>
+        <div class="brand-version">AI CORE v2.4.1</div>
+      </div>
     </div>
-    <div class="titlebar-center">
-      <svg class="titlebar-center-bat" viewBox="0 0 60 30" fill="none">
-        <path d="M30 24C19 24 10 18 3 9C5 10 9 12 12 11C9 8 6 5 4 1C10 4 16 7 21 6C23 3 26 1 30 1C34 1 37 3 39 6C44 7 50 4 56 1C54 5 51 8 48 11C51 12 55 10 57 9C50 18 41 24 30 24Z" fill="#0af"/>
-      </svg>
-      <div class="titlebar-alfred-name">ALFRED</div>
-      <div class="titlebar-alfred-sub">AI ASSISTANT</div>
+
+    <div class="topbar-divider"></div>
+
+    <div class="topbar-status">
+      <div class="status-dot"></div>
+      <span class="status-label">ALL SYSTEMS NOMINAL</span>
     </div>
-    <div class="titlebar-icons">
-      <span title="Location">⊕</span>
-      <span title="Chat">⊡</span>
-      <span title="Mail">✉</span>
-      <span title="Contacts">⊞</span>
-      <span title="Settings">⚙</span>
-      <span title="Minimize">—</span>
-      <span title="Maximize">⬜</span>
-      <span title="Close">✕</span>
+
+    <div class="topbar-center">
+      <div class="topbar-center-name">NEURAL INTERFACE</div>
+      <div class="topbar-center-sub">LOCAL–CLOUD HYBRID ENGINE</div>
     </div>
+
+    <div class="topbar-actions">
+      <!-- Provider toggle -->
+      <div class="provider-toggle" id="providerToggle" title="Switch AI provider">
+        <span class="provider-toggle-label">PROVIDER</span>
+        <div class="toggle-track" id="toggleTrack">
+          <div class="toggle-knob"></div>
+        </div>
+        <span class="provider-name" id="providerName">OLLAMA</span>
+      </div>
+      <div class="topbar-btn" title="Minimize">—</div>
+      <div class="topbar-btn" title="Maximize">⬜</div>
+      <div class="topbar-btn close" title="Close">✕</div>
+    </div>
+    <div class="topbar-line"></div>
   </div>
 
-  <!-- MAIN BODY -->
-  <div class="main-body">
+  <!-- BODY -->
+  <div class="body-wrap">
+
     <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="sidebar-bat-emblem">
-        <svg class="sidebar-bat-svg" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="45" stroke="#0af" stroke-width="0.5" fill="none"/>
-          <circle cx="50" cy="50" r="35" stroke="#0af" stroke-width="0.3" fill="none"/>
-          <path d="M50 70C36 70 24 62 15 50C18 51 23 53 27 52C23 48 19 43 16 35C24 39 31 43 38 42C40 37 44 34 50 34C56 34 60 37 62 42C69 43 76 39 84 35C81 43 77 48 73 52C77 53 82 51 85 50C76 62 64 70 50 70Z" fill="#0af" opacity="0.6"/>
-        </svg>
+      <div class="sidebar-item active" data-view="chat">
+        <span>💬</span>
+        <div class="sidebar-tooltip">CHAT</div>
       </div>
-      <div class="sidebar-nav">
-        <div class="nav-item active"><span class="nav-icon">⊟</span> DASHBOARD</div>
-        <div class="nav-item"><span class="nav-icon">◈</span> ALFRED <span class="nav-ai-badge">AI</span></div>
-        <div class="nav-item"><span class="nav-icon">⊠</span> COMMUNICATION</div>
-        <div class="nav-item"><span class="nav-icon">☑</span> TASKS</div>
-        <div class="nav-item"><span class="nav-icon">◫</span> PROJECTS</div>
-        <div class="nav-item"><span class="nav-icon">⊡</span> FILES</div>
-        <div class="nav-item"><span class="nav-icon">⊞</span> CALENDAR</div>
-        <div class="nav-item"><span class="nav-icon">✎</span> NOTES</div>
-        <div class="nav-item"><span class="nav-icon">⊕</span> SYSTEM MONITOR</div>
-        <div class="nav-item"><span class="nav-icon">⊟</span> DATABASE</div>
-        <div class="nav-item"><span class="nav-icon">⚙</span> SETTINGS</div>
+      <div class="sidebar-item" data-view="docs">
+        <span>📄</span>
+        <div class="sidebar-tooltip">DOCUMENTS</div>
       </div>
-      <div class="sidebar-user">
-        <span class="sidebar-user-icon">👤</span>
-        <div class="sidebar-user-info">
-          <div class="sidebar-user-label">USER</div>
-          <div class="sidebar-user-name"><span class="sidebar-user-dot"></span>BRUCE WAYNE</div>
-          <div class="sidebar-user-clearance">Clearance Level: Omega</div>
+      <div class="sidebar-item" data-view="memory">
+        <span>🧠</span>
+        <div class="sidebar-tooltip">MEMORY</div>
+      </div>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-item" data-view="monitor">
+        <span>📊</span>
+        <div class="sidebar-tooltip">MONITOR</div>
+      </div>
+      <div class="sidebar-item" data-view="search">
+        <span>🔍</span>
+        <div class="sidebar-tooltip">SEARCH</div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="sidebar-sep"></div>
+        <div class="sidebar-item" data-view="settings">
+          <span>⚙</span>
+          <div class="sidebar-tooltip">SETTINGS</div>
         </div>
       </div>
     </div>
 
     <!-- CONTENT -->
     <div class="content">
-      <div class="content-main">
 
-        <!-- COL LEFT -->
-        <div class="col-left">
-          <div class="card system-status">
-            <div class="card-header">SYSTEM STATUS</div>
-            <div class="status-body">
-              <div class="status-ok">● All Systems Operational</div>
-              <div class="waveform">
-                <svg viewBox="0 0 180 30" preserveAspectRatio="none">
-                  <polyline class="waveform-path" points="0,15 10,10 15,20 20,8 25,22 30,12 35,18 40,9 45,21 50,14 55,17 60,8 65,22 70,11 75,19 80,7 85,23 90,13 95,17 100,10 105,20 110,8 115,22 120,12 125,18 130,9 135,21 140,14 145,17 150,8 155,22 160,11 165,19 170,7 175,23 180,15" stroke-dasharray="500" stroke-dashoffset="500"/>
-                </svg>
-              </div>
-              <div class="stat-row">
-                <div class="stat-label"><span>CPU</span><span class="stat-val">23%</span></div>
-                <div class="stat-bar"><div class="stat-fill" style="width:23%"></div></div>
-              </div>
-              <div class="stat-row">
-                <div class="stat-label"><span>MEMORY</span><span class="stat-val">42%</span></div>
-                <div class="stat-bar"><div class="stat-fill" style="width:42%"></div></div>
-              </div>
-              <div class="stat-row">
-                <div class="stat-label"><span>DISK</span><span class="stat-val">31%</span></div>
-                <div class="stat-bar"><div class="stat-fill" style="width:31%"></div></div>
-              </div>
-              <div class="stat-row">
-                <div class="stat-label"><span>NETWORK</span><span class="stat-val">18%</span></div>
-                <div class="stat-bar"><div class="stat-fill" style="width:18%; background: linear-gradient(90deg, #0a4a7a, #0af)"></div></div>
-              </div>
+      <!-- ═══ LEFT PANEL ═══ -->
+      <div class="panel-left">
+        <div class="sec-head">
+          <div class="sec-head-icon">◈</div>
+          <span class="sec-head-text">SYSTEM METRICS</span>
+        </div>
+
+        <div class="metrics-block">
+          <div class="metric-row">
+            <span class="metric-label">CPU</span>
+            <div class="metric-bar"><div class="metric-fill cpu" id="mCpu" style="width:23%"></div></div>
+            <span class="metric-val" id="vCpu">23%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">MEMORY</span>
+            <div class="metric-bar"><div class="metric-fill mem" id="mMem" style="width:42%"></div></div>
+            <span class="metric-val" id="vMem">42%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">DISK</span>
+            <div class="metric-bar"><div class="metric-fill disk" id="mDisk" style="width:31%"></div></div>
+            <span class="metric-val" id="vDisk">31%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">NETWORK</span>
+            <div class="metric-bar"><div class="metric-fill net" id="mNet" style="width:18%"></div></div>
+            <span class="metric-val" id="vNet">18%</span>
+          </div>
+        </div>
+
+        <div class="waveform-wrap">
+          <canvas id="waveCanvas" height="34"></canvas>
+        </div>
+
+        <div class="status-pills">
+          <div class="status-pill">
+            <div class="pill-dot green"></div>
+            <span class="pill-text">OLLAMA ENGINE</span>
+            <span class="pill-status">ACTIVE</span>
+          </div>
+          <div class="status-pill">
+            <div class="pill-dot cyan"></div>
+            <span class="pill-text">GEMINI CLOUD</span>
+            <span class="pill-status amber">STANDBY</span>
+          </div>
+          <div class="status-pill">
+            <div class="pill-dot amber"></div>
+            <span class="pill-text">SQLITE DB</span>
+            <span class="pill-status">SYNCED</span>
+          </div>
+          <div class="status-pill">
+            <div class="pill-dot green"></div>
+            <span class="pill-text">RAG PIPELINE</span>
+            <span class="pill-status">READY</span>
+          </div>
+        </div>
+
+        <div class="sec-head">
+          <div class="sec-head-icon">📂</div>
+          <span class="sec-head-text">KNOWLEDGE BASE</span>
+          <span class="sec-head-badge" id="docCount">0</span>
+        </div>
+
+        <div class="docs-section">
+          <div class="docs-list" id="docsList">
+            <div style="padding:16px 12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-lo);text-align:center;letter-spacing:2px">
+              NO DOCS INGESTED
             </div>
           </div>
 
-          <div class="card weather-card">
-            <div class="card-header">GOTHAM WEATHER</div>
-            <div class="weather-body">
-              <div style="flex:1">
-                <div class="weather-city">MISTY</div>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <div class="weather-icon-wrap">🌧</div>
-                  <div>
-                    <div class="weather-temp">12°</div>
-                    <div class="weather-feel">Feels like 10°</div>
-                  </div>
-                </div>
-                <div class="weather-stats">Humidity 89% · Wind 14 km/h</div>
-              </div>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="pdfInput" accept=".pdf" multiple>
+            <div class="upload-zone-text">
+              ⬆ DROP PDF or <span>BROWSE</span><br>
+              <span style="color:var(--text-lo);font-size:8px;margin-top:2px;display:block">MAX 20MB — RAG INGESTION</span>
+            </div>
+          </div>
+          <div class="upload-progress" id="uploadProgress">
+            <div class="up-track"><div class="up-fill" id="upFill"></div></div>
+          </div>
+        </div>
+
+        <div class="syslog-section">
+          <div class="sec-head">
+            <div class="sec-head-icon">⌘</div>
+            <span class="sec-head-text">SYSTEM LOG</span>
+          </div>
+          <div class="syslog-body" id="syslog"></div>
+        </div>
+      </div>
+
+      <!-- ═══ CENTER PANEL ═══ -->
+      <div class="panel-center">
+
+        <!-- HERO -->
+        <div class="hero">
+          <div class="hero-orb">
+            <div class="orb-ring"></div>
+            <div class="orb-ring"></div>
+            <div class="orb-ring"></div>
+            <div class="orb-ring"></div>
+            <div class="orb-sweep"><div class="orb-sweep-beam"></div></div>
+            <div class="orb-dots">
+              <div class="orb-dot" style="top:5%;left:52%;animation-delay:0s"></div>
+              <div class="orb-dot" style="top:50%;left:98%;animation-delay:.4s"></div>
+              <div class="orb-dot" style="top:95%;left:48%;animation-delay:.8s"></div>
+              <div class="orb-dot" style="top:50%;left:2%;animation-delay:1.2s"></div>
+            </div>
+            <div class="orb-core">
+              <span class="orb-core-letter">A</span>
             </div>
           </div>
 
-          <div class="card events-card">
-            <div class="card-header">UPCOMING EVENTS</div>
-            <div class="events-body">
-              <div class="event-item"><span class="event-time">22:00</span><span class="event-name">Case Review: Falcone Files</span></div>
-              <div class="event-item"><span class="event-time">23:30</span><span class="event-name">Dr. Langstrom Meeting</span></div>
-              <div class="event-item"><span class="event-time">01:00</span><span class="event-name">Surveillance Report</span></div>
+          <div class="hero-greeting" id="heroGreeting">SYSTEM ONLINE</div>
+          <div class="hero-name">AETHER</div>
+          <div class="hero-tagline">LOCAL · RAG · HYBRID INTELLIGENCE</div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="input-section">
+          <div class="input-frame">
+            <div class="input-prefix">&gt;_</div>
+            <input id="chatInput" type="text" placeholder="Query the neural core…" autocomplete="off">
+            <div class="input-actions">
+              <button class="input-btn" id="clearBtn" title="Clear">✕</button>
+              <button class="input-btn send" id="sendBtn" title="Send (Enter)">⌤</button>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <button class="qa-btn" onclick="quickPrompt('Summarize recent documents')">⊡ SUMMARIZE DOCS</button>
+            <button class="qa-btn" onclick="quickPrompt('What can you help me with?')">◈ CAPABILITIES</button>
+            <button class="qa-btn" onclick="quickPrompt('Run a system status check')">◉ STATUS CHECK</button>
+            <button class="qa-btn" onclick="loadHistory()">↺ LOAD HISTORY</button>
+          </div>
+        </div>
+
+        <!-- CHAT -->
+        <div class="chat-section">
+          <div class="chat-messages" id="chatMessages">
+            <!-- initial greeting injected via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ RIGHT PANEL ═══ -->
+      <div class="panel-right">
+        <div class="sec-head">
+          <div class="sec-head-icon">⊞</div>
+          <span class="sec-head-text">CONVERSATION LOG</span>
+          <span class="sec-head-badge" id="histCount">0</span>
+        </div>
+
+        <div class="history-section">
+          <div class="history-list" id="historyList">
+            <div style="padding:16px 12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-lo);text-align:center;letter-spacing:2px">
+              NO HISTORY LOADED
             </div>
           </div>
         </div>
 
-        <!-- COL CENTER -->
-        <div class="col-center" style="position:relative;grid-column:2">
-          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center, rgba(0,100,200,0.05) 0%, transparent 70%)"></div>
-          <div class="center-greeting">GOOD EVENING, MASTER BRUCE</div>
-          <div class="center-name">ALFRED</div>
-          <svg class="center-wave" viewBox="0 0 120 20">
-            <polyline class="center-wave" style="fill:none;stroke:#0af;stroke-width:1.5;opacity:0.6" points="0,10 8,5 14,15 20,7 26,13 32,4 38,16 44,8 50,12 56,4 62,16 68,8 74,12 80,4 86,16 92,8 98,12 104,5 110,15 116,7 120,10"/>
-          </svg>
-
-          <div class="radar-wrap">
-            <div class="radar-ring"></div>
-            <div class="radar-ring"></div>
-            <div class="radar-ring"></div>
-            <div class="radar-ring"></div>
-            <div class="radar-ring"></div>
-            <div class="radar-line-h"></div>
-            <div class="radar-line-v"></div>
-            <div class="radar-sweep"><div class="radar-sweep-beam"></div></div>
-            <div class="radar-dots">
-              <div class="radar-dot" style="top:10%;left:52%;animation-delay:0s"></div>
-              <div class="radar-dot" style="top:40%;left:80%;animation-delay:0.3s"></div>
-              <div class="radar-dot" style="top:75%;left:35%;animation-delay:0.6s"></div>
-              <div class="radar-dot" style="top:25%;left:20%;animation-delay:0.9s"></div>
-              <div class="radar-dot" style="top:65%;left:70%;animation-delay:1.2s"></div>
-            </div>
-            <svg class="bat-center-svg" viewBox="0 0 100 60" fill="none">
-              <path d="M50 45 C30 45 15 35 5 20 C10 22 18 24 22 22 C18 18 14 12 10 5 C20 10 28 15 35 12 C38 8 43 5 50 5 C57 5 62 8 65 12 C72 15 80 10 90 5 C86 12 82 18 78 22 C82 24 90 22 95 20 C85 35 70 45 50 45Z" fill="#0af"/>
-            </svg>
+        <div class="context-section">
+          <div class="sec-head">
+            <div class="sec-head-icon">🔗</div>
+            <span class="sec-head-text">RAG CONTEXT</span>
+            <span class="sec-head-badge" id="ragCount">0</span>
           </div>
-
-          <div class="center-how">How can I be of service?</div>
-          <div class="center-input-wrap">
-            <input class="center-input" type="text" placeholder="Ask Alfred anything...">
-            <span class="center-mic">🎙</span>
-          </div>
-          <div class="suggested-actions">
-            <span class="sa-label">SUGGESTED ACTIONS</span>
-            <button class="sa-btn"><span class="sa-btn-icon">📋</span> Summarize Reports</button>
-            <button class="sa-btn"><span class="sa-btn-icon">📅</span> Check Calendar</button>
-            <button class="sa-btn"><span class="sa-btn-icon">🔍</span> Scan System</button>
-            <button class="sa-btn"><span class="sa-btn-icon">✅</span> Create Task</button>
-            <button class="sa-btn"><span class="sa-btn-icon">📁</span> Open Files ▾</button>
-          </div>
-        </div>
-
-        <!-- COL RIGHT - ALFRED CONSOLE -->
-        <div class="card col-right">
-          <div class="card-header">ALFRED AI CONSOLE</div>
-          <div class="alfred-console">
-            <div class="alfred-chat" id="alfredChat">
-              <div class="chat-msg">
-                <div class="chat-avatar" style="background:#0a2030;border-color:#0a5a7a;overflow:hidden">
-                  <svg viewBox="0 0 32 32" width="32" height="32" style="background:#0a1e30">
-                    <circle cx="16" cy="12" r="6" fill="#1a3a5a"/>
-                    <rect x="8" y="20" width="16" height="10" rx="2" fill="#1a3a5a"/>
-                    <rect x="11" y="17" width="4" height="6" fill="#2a5a8a"/>
-                    <rect x="17" y="17" width="4" height="6" fill="#2a5a8a"/>
-                  </svg>
-                </div>
-                <div class="chat-bubble">
-                  <div class="chat-meta">
-                    <span class="chat-sender">ALFRED</span>
-                    <span class="chat-role" style="color:#2a7a5a">AI ASSISTANT</span>
-                  </div>
-                  <div class="chat-text">At your service, Sir.</div>
-                </div>
-              </div>
-              <div class="chat-msg">
-                <div class="chat-avatar" style="background:#0a1828;color:#5a9aaa;font-size:16px;font-family:Orbitron">B</div>
-                <div class="chat-bubble">
-                  <div class="chat-meta">
-                    <span class="chat-sender" style="color:#5a9aaa">YOU</span>
-                    <span class="chat-time">21:41</span>
-                  </div>
-                  <div class="chat-text">Alfred, write an email to Lucius Fox about the new aerial drone project</div>
-                </div>
-              </div>
-              <div class="chat-msg">
-                <div class="chat-avatar" style="background:#0a2030;border-color:#0a5a7a;overflow:hidden">
-                  <svg viewBox="0 0 32 32" width="32" height="32" style="background:#0a1e30">
-                    <circle cx="16" cy="12" r="6" fill="#1a3a5a"/>
-                    <rect x="8" y="20" width="16" height="10" rx="2" fill="#1a3a5a"/>
-                    <rect x="11" y="17" width="4" height="6" fill="#2a5a8a"/>
-                    <rect x="17" y="17" width="4" height="6" fill="#2a5a8a"/>
-                  </svg>
-                </div>
-                <div class="chat-bubble">
-                  <div class="chat-meta">
-                    <span class="chat-sender">ALFRED</span>
-                    <span class="chat-time">21:41</span>
-                  </div>
-                  <div class="chat-text">Email drafted successfully. Would you like me to send it?</div>
-                  <div class="chat-actions">
-                    <div class="chat-action-btn" title="View">👁</div>
-                    <div class="chat-action-btn" title="Edit">✎</div>
-                    <div class="chat-action-btn" title="Send">➤</div>
-                    <div class="chat-action-btn" title="Archive">⊡</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="chat-input-row">
-              <input class="chat-input" type="text" placeholder="Type a command...">
-              <button class="chat-send">➤</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- COL FAR RIGHT -->
-        <div class="col-far-right">
-          <div class="card mission-card">
-            <div class="card-header">MISSION OVERVIEW</div>
-            <div class="mission-img">
-              <div class="mission-sky"></div>
-              <!-- Gotham skyline SVG -->
-              <svg style="position:absolute;bottom:0;left:0;width:100%;height:90px" viewBox="0 0 220 90" preserveAspectRatio="none">
-                <rect x="10" y="40" width="12" height="50" fill="#030e1c"/>
-                <rect x="11" y="35" width="10" height="8" fill="#041220"/>
-                <rect x="25" y="25" width="16" height="65" fill="#030e1c"/>
-                <rect x="26" y="15" width="6" height="12" fill="#041220"/>
-                <rect x="44" y="35" width="10" height="55" fill="#030e1c"/>
-                <rect x="57" y="20" width="20" height="70" fill="#030e1c"/>
-                <rect x="59" y="12" width="8" height="10" fill="#041220"/>
-                <rect x="59" y="8" width="8" height="5" fill="#051428"/>
-                <rect x="80" y="30" width="14" height="60" fill="#030e1c"/>
-                <rect x="81" y="22" width="6" height="10" fill="#041220"/>
-                <rect x="97" y="15" width="22" height="75" fill="#030e1c"/>
-                <rect x="100" y="8" width="8" height="9" fill="#041220"/>
-                <rect x="100" y="3" width="8" height="6" fill="#051428"/>
-                <rect x="122" y="28" width="16" height="62" fill="#030e1c"/>
-                <rect x="141" y="20" width="12" height="70" fill="#030e1c"/>
-                <rect x="142" y="13" width="6" height="9" fill="#041220"/>
-                <rect x="155" y="32" width="18" height="58" fill="#030e1c"/>
-                <rect x="156" y="24" width="8" height="10" fill="#041220"/>
-                <rect x="175" y="22" width="14" height="68" fill="#030e1c"/>
-                <rect x="177" y="14" width="6" height="10" fill="#041220"/>
-                <rect x="177" y="8" width="6" height="7" fill="#051428"/>
-                <rect x="192" y="36" width="12" height="54" fill="#030e1c"/>
-                <rect x="207" y="28" width="14" height="62" fill="#030e1c"/>
-                <!-- windows glow -->
-                <rect x="29" y="30" width="2" height="2" fill="rgba(0,150,255,0.3)"/>
-                <rect x="33" y="28" width="2" height="2" fill="rgba(0,150,255,0.2)"/>
-                <rect x="60" y="20" width="3" height="3" fill="rgba(0,150,255,0.4)"/>
-                <rect x="100" y="18" width="3" height="3" fill="rgba(0,150,255,0.35)"/>
-                <rect x="178" y="18" width="2" height="2" fill="rgba(0,150,255,0.3)"/>
-              </svg>
-              <div class="bat-signal"></div>
-              <!-- Bat signal beam -->
-              <div style="position:absolute;bottom:30px;right:30px;width:40px;height:40px;border-radius:50%;background:rgba(220,200,50,0.06);animation:batSignal 3s ease-in-out infinite"></div>
-            </div>
-            <div class="mission-info">
-              <div class="mission-city">GOTHAM CITY</div>
-              <div class="mission-tagline">VIGILANCE. 24/7</div>
-            </div>
-          </div>
-
-          <div class="card threats-card">
-            <div class="card-header">THREATS DETECTED</div>
-            <div class="threat-item"><div class="threat-dot med"></div><span class="threat-name">ARKHAM ACTIVITY</span><span class="threat-level threat-med">MEDIUM</span></div>
-            <div class="threat-item"><div class="threat-dot high"></div><span class="threat-name">ORGANIZED CRIME</span><span class="threat-level threat-high">HIGH</span></div>
-            <div class="threat-item"><div class="threat-dot high"></div><span class="threat-name">FALCONE SYNDICATE</span><span class="threat-level threat-high">HIGH</span></div>
-            <div class="threat-item"><div class="threat-dot high"></div><span class="threat-name">BLACK MASK</span><span class="threat-level threat-high">HIGH</span></div>
-            <div class="view-intel">VIEW INTEL REPORT ›</div>
-          </div>
-
-          <div class="card syslog-card">
-            <div class="card-header">SYSTEM LOG</div>
-            <div class="syslog-body" id="syslog">
-              <div class="log-line"><span class="log-ts">21:41:02</span> <span class="log-ai">[AI]</span> <span class="log-msg">Alfred AI initialized</span></div>
-              <div class="log-line"><span class="log-ts">21:41:05</span> <span class="log-sys">[SYS]</span> <span class="log-msg">All systems operational</span></div>
-              <div class="log-line"><span class="log-ts">21:41:07</span> <span class="log-ai">[NET]</span> <span class="log-msg">Secure connection established</span></div>
-              <div class="log-line"><span class="log-ts">21:41:10</span> <span class="log-ai">[DB]</span> <span class="log-msg">Database sync complete</span></div>
-              <div class="log-line"><span class="log-ts">21:41:12</span> <span class="log-ai">[AI]</span> <span class="log-msg">Listening for commands...</span></div>
-            </div>
-            <div class="gotham3d">
-              <svg class="gotham3d-svg" viewBox="0 0 220 100" preserveAspectRatio="none">
-                <!-- 3D isometric city sketch -->
-                <defs>
-                  <linearGradient id="bldg1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#0a2a40"/>
-                    <stop offset="1" stop-color="#030e1c"/>
-                  </linearGradient>
-                </defs>
-                <!-- isometric buildings -->
-                <polygon points="80,50 95,40 110,50 95,60" fill="#0a2040" stroke="#0a4a7a" stroke-width="0.5"/>
-                <polygon points="95,40 110,30 125,40 110,50" fill="#0a3050" stroke="#0a5a8a" stroke-width="0.5"/>
-                <polygon points="110,50 125,40 125,60 110,70" fill="#051828" stroke="#083050" stroke-width="0.5"/>
-                <polygon points="60,60 75,50 90,60 75,70" fill="#0a1e30" stroke="#0a3a5a" stroke-width="0.5"/>
-                <polygon points="75,50 90,40 105,50 90,60" fill="#0a2a3a" stroke="#0a4a6a" stroke-width="0.5"/>
-                <polygon points="120,45 135,35 150,45 135,55" fill="#0a2535" stroke="#0a4060" stroke-width="0.5"/>
-                <polygon points="135,35 150,25 165,35 150,45" fill="#0a3045" stroke="#0a5070" stroke-width="0.5"/>
-                <polygon points="150,45 165,35 165,55 150,65" fill="#051520" stroke="#083040" stroke-width="0.5"/>
-                <!-- glow windows -->
-                <circle cx="102" cy="44" r="1.5" fill="rgba(0,180,255,0.6)" opacity="0.8"/>
-                <circle cx="118" cy="36" r="1" fill="rgba(0,180,255,0.5)"/>
-                <circle cx="147" cy="38" r="1.5" fill="rgba(0,180,255,0.6)" opacity="0.7"/>
-                <!-- ground glow -->
-                <ellipse cx="110" cy="85" rx="80" ry="8" fill="rgba(0,100,200,0.08)"/>
-              </svg>
+          <div class="context-body" id="ragContext">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-lo);letter-spacing:1px">
+              AWAITING QUERY...
             </div>
           </div>
         </div>
       </div>
 
-      <!-- BOTTOM ROW -->
-      <div class="bottom-row">
-        <!-- RECENT ACTIVITY -->
-        <div class="card activity-card">
-          <div class="card-header">RECENT ACTIVITY</div>
-          <div class="activity-body">
-            <div class="activity-item"><span class="act-icon">✉</span><span class="act-name">Email drafted to Lucius Fox</span><span class="act-time">21:41</span></div>
-            <div class="activity-item"><span class="act-icon">📹</span><span class="act-name">Reviewed Surveillance Footage</span><span class="act-time">21:35</span></div>
-            <div class="activity-item"><span class="act-icon">✎</span><span class="act-name">Added Note: Meeting with Gordon</span><span class="act-time">20:58</span></div>
-            <div class="activity-item"><span class="act-icon">⬆</span><span class="act-name">Project Update: Batwing Upgrades</span><span class="act-time">20:42</span></div>
-            <div class="activity-item"><span class="act-icon">📄</span><span class="act-name">Scanned File: Wayne Enterprises Q4</span><span class="act-time">20:30</span></div>
-          </div>
-          <div class="view-all">VIEW ALL ACTIVITY ›</div>
-        </div>
+    </div>
+  </div>
 
-        <!-- TASKS -->
-        <div class="card tasks-card">
-          <div class="card-header" style="justify-content:space-between">
-            <span style="display:flex;align-items:center;gap:8px"><span style="width:5px;height:5px;border-radius:50%;background:#0af;box-shadow:0 0 6px #0af;animation:dotPulse 2s ease-in-out infinite;flex-shrink:0"></span>TASKS</span>
-          </div>
-          <div class="tasks-tabs">
-            <span class="task-tab active">ALL</span>
-            <span class="task-tab">PENDING</span>
-            <span class="task-tab">IN PROGRESS</span>
-            <span class="task-tab">COMPLETE</span>
-          </div>
-          <div class="tasks-body">
-            <div class="task-item"><div class="task-check"></div><span class="task-name">Analyze drone specs from Lucius Fox</span><span class="task-pri high">High</span><div class="task-dot high"></div></div>
-            <div class="task-item"><div class="task-check"></div><span class="task-name">Review case files: Arkham Escape</span><span class="task-pri high">High</span><div class="task-dot high"></div></div>
-            <div class="task-item"><div class="task-check"></div><span class="task-name">Prepare briefing for Commissioner Gordon</span><span class="task-pri med">Medium</span><div class="task-dot med"></div></div>
-            <div class="task-item"><div class="task-check"></div><span class="task-name">Schedule Wayne Enterprises Board Meeting</span><span class="task-pri low">Low</span><div class="task-dot" style="background:#22cc77;box-shadow:0 0 4px #22cc77"></div></div>
-          </div>
-          <div class="view-all">VIEW ALL TASKS ›</div>
-        </div>
-
-        <!-- Empty right spacer matching far-right col -->
-        <div style="border-left:1px solid var(--border)"></div>
-      </div>
-
-      <!-- TASKBAR -->
-      <div class="taskbar" style="position:relative">
-        <div class="taskbar-nav">
-          <div class="tb-item"><span class="tb-item-icon">📡</span> COMMS</div>
-          <div class="tb-item"><span class="tb-item-icon">📷</span> SURVEILLANCE</div>
-          <div class="tb-item"><span class="tb-item-icon">🗺</span> MAP</div>
-        </div>
-        <div class="tb-center">
-          <div class="tb-bat-btn">
-            <svg viewBox="0 0 40 24" width="28" fill="none">
-              <path d="M20 18C12 18 6 14 2 8C4 9 7 10 9 9C7 7 5 5 4 2C8 4 11 6 14 5C15 3 17 2 20 2C23 2 25 3 26 5C29 6 32 4 36 2C35 5 33 7 31 9C33 10 36 9 38 8C34 14 28 18 20 18Z" fill="#0af"/>
-            </svg>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="tb-item"><span class="tb-item-icon">🗄</span> DATABASE</div>
-          <div class="tb-item"><span class="tb-item-icon">📈</span> ANALYTICS</div>
-          <div class="tb-item"><span class="tb-item-icon">🛡</span> ARMORY</div>
-        </div>
-        <div class="tb-voice">
-          <span style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px">VOICE MODE</span>
-          <div class="voice-wave">
-            <div class="voice-bar"></div>
-            <div class="voice-bar"></div>
-            <div class="voice-bar"></div>
-            <div class="voice-bar"></div>
-            <div class="voice-bar"></div>
-          </div>
-        </div>
-      </div>
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="sb-item"><div class="dot green"></div>OLLAMA:11434</div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><div class="dot cyan"></div>API:8080</div>
+    <div class="sb-sep"></div>
+    <div class="sb-item">SQLITE · INDEXED</div>
+    <div class="sb-sep"></div>
+    <div class="sb-item" id="modelLabel">MODEL: LOCAL</div>
+    <div class="sb-right">
+      <span class="sb-clock" id="sbClock">--:--:--</span>
     </div>
   </div>
 </div>
 
 <script>
-// ===== BOOT SEQUENCE TEXT =====
-const bootMessages = [
-  '[SYS] Initializing Batcomputer OS v8.4.1...',
-  '[NET] Establishing encrypted connection...',
-  '[AI]  Loading Alfred Neural Network v3.2...',
-  '[DB]  Syncing Gotham Criminal Database...',
-  '[SYS] All subsystems nominal.',
-  '[AI]  Alfred AI ready. Good evening, Master Bruce.',
+/* ══════════════════════════════════════
+   AETHER FRONTEND — CORE JS
+══════════════════════════════════════ */
+
+const API = 'http://localhost:8080';
+let useCloud = false;
+let isSending = false;
+
+/* ─── CURSOR ─── */
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top  = e.clientY + 'px';
+});
+
+/* ─── BOOT SEQUENCE ─── */
+const bootLines = [
+  { tag:'SYS', msg:'Initializing Aether Core v2.4.1…', cls:'sys' },
+  { tag:'DB',  msg:'SQLite database connection established', cls:'ai' },
+  { tag:'NET', msg:'Binding API gateway on :8080', cls:'net' },
+  { tag:'AI',  msg:'Loading Ollama neural engine…', cls:'ai' },
+  { tag:'RAG', msg:'Embedding pipeline ready', cls:'sys' },
+  { tag:'OK',  msg:'All systems nominal. Standing by.', cls:'sys' },
 ];
 
-function animateBootLines() {
-  const container = document.getElementById('bootLines');
-  bootMessages.forEach((msg, i) => {
-    setTimeout(() => {
-      const div = document.createElement('div');
-      div.className = 'boot-line-item';
-      div.textContent = msg;
-      div.style.opacity = '0';
-      div.style.animation = 'bootTitleIn 0.3s ease forwards';
-      container.appendChild(div);
-    }, i * 300 + 400);
-  });
-}
-animateBootLines();
+const bootLog = document.getElementById('bootLog');
+const bootPct = document.getElementById('bootPct');
 
-// ===== ANIMATED WAVEFORM =====
-const waveformPath = document.querySelector('.waveform-path');
-if (waveformPath) {
-  const length = waveformPath.getTotalLength ? waveformPath.getTotalLength() : 500;
-  waveformPath.style.strokeDasharray = length;
-  waveformPath.style.strokeDashoffset = length;
+bootLines.forEach((l, i) => {
   setTimeout(() => {
-    waveformPath.style.transition = 'stroke-dashoffset 2s ease';
-    waveformPath.style.strokeDashoffset = '0';
-    waveformPath.style.stroke = '#1a7a9a';
-    // Then animate continuously
-    let animDir = 1;
-    setInterval(() => {
-      const pts = [];
-      for(let x = 0; x <= 180; x += 5) {
-        const y = 15 + (Math.sin(x/15 + Date.now()/800) * 7) + (Math.sin(x/8 + Date.now()/400) * 3);
-        pts.push(`${x},${y}`);
-      }
-      waveformPath.setAttribute('points', pts.join(' '));
-    }, 50);
-  }, 4500);
-}
+    const d = document.createElement('div');
+    d.className = 'boot-log-line';
+    d.style.animationDelay = '0s';
+    d.innerHTML = `<span class="ts">${now()}</span> <span class="tag ${l.cls}">[${l.tag}]</span> <span>${l.msg}</span>`;
+    bootLog.appendChild(d);
+  }, i * 420 + 300);
+});
 
-// ===== LIVE SYSTEM LOG =====
-const logMessages = [
-  { type: 'NET', msg: 'Scanning perimeter sensors...' },
-  { type: 'AI', msg: 'Threat analysis updated' },
-  { type: 'DB', msg: 'New records added: 3' },
-  { type: 'SYS', msg: 'Memory cache cleared' },
-  { type: 'AI', msg: 'Monitoring Gotham feeds...' },
-  { type: 'NET', msg: 'Secure uplink stable' },
-  { type: 'DB', msg: 'Wayne Enterprises sync OK' },
-  { type: 'AI', msg: 'Pattern recognition active' },
+// count-up % label
+let pct = 0;
+const pctInt = setInterval(() => {
+  pct = Math.min(pct + Math.floor(Math.random() * 8) + 3, 100);
+  bootPct.textContent = pct + '%';
+  if (pct >= 100) clearInterval(pctInt);
+}, 80);
+
+/* ─── CLOCK ─── */
+function now() {
+  const d = new Date();
+  return [d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+}
+setInterval(() => { document.getElementById('sbClock').textContent = now(); }, 1000);
+
+/* ─── GREETING ─── */
+const hours = new Date().getHours();
+const greet = hours < 12 ? 'GOOD MORNING' : hours < 18 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
+document.getElementById('heroGreeting').textContent = greet;
+
+/* ─── WAVEFORM CANVAS ─── */
+const waveCanvas = document.getElementById('waveCanvas');
+const wctx = waveCanvas.getContext('2d');
+function resizeWave() {
+  waveCanvas.width = waveCanvas.offsetWidth * devicePixelRatio;
+  waveCanvas.height = waveCanvas.offsetHeight * devicePixelRatio;
+  wctx.scale(devicePixelRatio, devicePixelRatio);
+}
+resizeWave();
+window.addEventListener('resize', resizeWave);
+
+let waveT = 0;
+function drawWave() {
+  const W = waveCanvas.offsetWidth, H = waveCanvas.offsetHeight;
+  wctx.clearRect(0, 0, W, H);
+  wctx.beginPath();
+  for (let x = 0; x <= W; x++) {
+    const y = H/2
+      + Math.sin(x / 18 + waveT)       * 5
+      + Math.sin(x / 9  + waveT * 1.7) * 3
+      + Math.sin(x / 5  + waveT * 3.1) * 1.5;
+    x === 0 ? wctx.moveTo(x, y) : wctx.lineTo(x, y);
+  }
+  const grad = wctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'rgba(0,229,255,0)');
+  grad.addColorStop(0.5,'rgba(0,229,255,0.7)');
+  grad.addColorStop(1,'rgba(0,229,255,0)');
+  wctx.strokeStyle = grad;
+  wctx.lineWidth = 1.5;
+  wctx.stroke();
+  waveT += 0.04;
+  requestAnimationFrame(drawWave);
+}
+drawWave();
+
+/* ─── LIVE METRICS ─── */
+function animMetric(fillId, valId, pct) {
+  document.getElementById(fillId).style.width = pct + '%';
+  document.getElementById(valId).textContent  = pct + '%';
+}
+function randomMetrics() {
+  animMetric('mCpu',  'vCpu',  Math.floor(15 + Math.random() * 25));
+  animMetric('mMem',  'vMem',  Math.floor(35 + Math.random() * 20));
+  animMetric('mDisk', 'vDisk', Math.floor(28 + Math.random() * 8));
+  animMetric('mNet',  'vNet',  Math.floor(5  + Math.random() * 30));
+}
+setTimeout(() => setInterval(randomMetrics, 3500), 5000);
+
+/* ─── SYSTEM LOG ─── */
+const syslogEl = document.getElementById('syslog');
+const sysMessages = [
+  { tag:'AI',  msg:'Embedding index refreshed', cls:'ai' },
+  { tag:'NET', msg:'Heartbeat OK — :8080', cls:'net' },
+  { tag:'SYS', msg:'GC run: 12ms', cls:'sys' },
+  { tag:'AI',  msg:'Context window: 4096 tokens', cls:'ai' },
+  { tag:'DB',  msg:'WAL checkpoint complete', cls:'sys' },
+  { tag:'NET', msg:'Ollama ping: 8ms', cls:'net' },
+  { tag:'AI',  msg:'Retrieval pipeline idle', cls:'ai' },
+  { tag:'SYS', msg:'Memory stable at 42%', cls:'sys' },
 ];
-let logIdx = 0;
-function addLogLine() {
-  const syslog = document.getElementById('syslog');
-  if (!syslog) return;
-  const item = logMessages[logIdx % logMessages.length];
-  logIdx++;
-  const now = new Date();
-  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-  const div = document.createElement('div');
-  div.className = 'log-line';
-  div.innerHTML = `<span class="log-ts">${ts}</span> <span class="log-${item.type.toLowerCase() === 'sys' ? 'sys' : 'ai'}">[${item.type}]</span> <span class="log-msg">${item.msg}</span>`;
-  syslog.appendChild(div);
-  syslog.scrollTop = syslog.scrollHeight;
-  if (syslog.children.length > 20) syslog.removeChild(syslog.children[0]);
+let sysIdx = 0;
+function addSysLog(tag, msg, cls) {
+  const d = document.createElement('div');
+  d.className = 'log-entry';
+  d.innerHTML = `<span class="ts">${now()}</span> <span class="tag ${cls}">[${tag}]</span> <span class="msg"> ${msg}</span>`;
+  syslogEl.appendChild(d);
+  syslogEl.scrollTop = syslogEl.scrollHeight;
+  if (syslogEl.children.length > 30) syslogEl.removeChild(syslogEl.children[0]);
 }
-setTimeout(() => setInterval(addLogLine, 2800), 5000);
+// seed initial
+[
+  ['SYS','Aether core initialized','sys'],
+  ['DB', 'SQLite connected','sys'],
+  ['AI', 'Ollama engine ready','ai'],
+  ['NET','API gateway :8080 open','net'],
+].forEach(([t,m,c]) => addSysLog(t,m,c));
 
-// ===== SYSTEM STATS LIVE ANIMATION =====
-function updateStats() {
-  const fills = document.querySelectorAll('.stat-fill');
-  const values = [
-    Math.floor(15 + Math.random() * 20),
-    Math.floor(35 + Math.random() * 15),
-    Math.floor(28 + Math.random() * 8),
-    Math.floor(10 + Math.random() * 18)
-  ];
-  const labels = document.querySelectorAll('.stat-val');
-  fills.forEach((f, i) => {
-    f.style.transition = 'width 1s ease';
-    f.style.width = values[i] + '%';
-    if (labels[i]) labels[i].textContent = values[i] + '%';
-  });
-}
-setTimeout(() => setInterval(updateStats, 3000), 5000);
+setTimeout(() => {
+  setInterval(() => {
+    const l = sysMessages[sysIdx++ % sysMessages.length];
+    addSysLog(l.tag, l.msg, l.cls);
+  }, 4000);
+}, 5000);
 
-// ===== CHAT INTERACTION =====
-const chatInput = document.querySelector('.chat-input');
-const chatSend = document.querySelector('.chat-send');
-const alfredChat = document.getElementById('alfredChat');
+/* ─── PROVIDER TOGGLE ─── */
+const toggleTrack  = document.getElementById('toggleTrack');
+const providerName = document.getElementById('providerName');
+const modelLabel   = document.getElementById('modelLabel');
 
-const alfredReplies = [
-  "Understood, Sir. Initiating the operation now.",
-  "Of course, Master Bruce. I shall see to it at once.",
-  "Already done, Sir. Is there anything else?",
-  "I've compiled the relevant data. Shall I display it?",
-  "Security protocols engaged. You are safe, Sir.",
-  "Very well. The task has been added to your queue.",
-  "I've notified the appropriate parties, Sir.",
-];
+document.getElementById('providerToggle').addEventListener('click', () => {
+  useCloud = !useCloud;
+  toggleTrack.classList.toggle('on', useCloud);
+  providerName.textContent = useCloud ? 'GEMINI' : 'OLLAMA';
+  providerName.className = 'provider-name' + (useCloud ? ' cloud' : '');
+  modelLabel.textContent = useCloud ? 'MODEL: GEMINI' : 'MODEL: LOCAL';
+  addSysLog('SYS', `Provider switched → ${useCloud ? 'Gemini Cloud' : 'Ollama Local'}`, 'sys');
+});
 
-function addChatMessage(sender, text, isAlfred = false) {
-  const div = document.createElement('div');
-  div.className = 'chat-msg';
-  div.style.opacity = '0';
-  div.style.transform = 'translateY(10px)';
-  div.style.transition = 'all 0.3s ease';
-  const avatarHtml = isAlfred
-    ? `<div class="chat-avatar" style="background:#0a2030;border-color:#0a5a7a"><svg viewBox="0 0 32 32" width="32" height="32" style="background:#0a1e30"><circle cx="16" cy="12" r="6" fill="#1a3a5a"/><rect x="8" y="20" width="16" height="10" rx="2" fill="#1a3a5a"/><rect x="11" y="17" width="4" height="6" fill="#2a5a8a"/><rect x="17" y="17" width="4" height="6" fill="#2a5a8a"/></svg></div>`
-    : `<div class="chat-avatar" style="background:#0a1828;color:#5a9aaa;font-size:16px;font-family:Orbitron;display:flex;align-items:center;justify-content:center">B</div>`;
-  const now = new Date();
-  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  div.innerHTML = `${avatarHtml}<div class="chat-bubble"><div class="chat-meta"><span class="chat-sender" style="color:${isAlfred ? '#0af' : '#5a9aaa'}">${sender}</span><span class="chat-time">${ts}</span></div><div class="chat-text">${text}</div></div>`;
-  alfredChat.appendChild(div);
-  requestAnimationFrame(() => { div.style.opacity = '1'; div.style.transform = 'translateY(0)'; });
-  alfredChat.scrollTop = alfredChat.scrollHeight;
+/* ─── CHAT ─── */
+const chatMessages = document.getElementById('chatMessages');
+
+function ts() {
+  return new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
 }
 
-async function sendMessage() {
-	  const val = chatInput.value.trim();
-	  if (!val) return;
-	  addChatMessage('YOU', val, false);
-	  chatInput.value = '';
+function addMsg(role, text, sources) {
+  const isAI = role === 'ai';
+  const wrap = document.createElement('div');
+  wrap.className = `msg-wrap ${isAI ? '' : 'user'}`;
 
-	  const useCloud = false; // or wire a toggle
+  let sourcesHTML = '';
+  if (sources && sources.length) {
+    sourcesHTML = `<div class="msg-sources">${
+      sources.map(s => `<span class="source-chip">📎 ${s.documentName || 'doc'}</span>`).join('')
+    }</div>`;
+  }
 
-	  try {
-	    const res = await fetch('http://localhost:8080/api/chat', {
-	      method: 'POST',
-	      headers: { 'Content-Type': 'application/json' },
-	      body: JSON.stringify({ question: val, useCloud })
-	    });
-	    const data = await res.json();
-	    addChatMessage('ALFRED', data.answer, true);
-	  } catch (e) {
-	    addChatMessage('ALFRED', 'Connection to Batcomputer lost, Sir.', true);
-	  }
-	}
+  wrap.innerHTML = `
+    <div class="msg-avatar ${isAI ? 'ai' : 'user2'}">${isAI ? 'AI' : 'ME'}</div>
+    <div class="msg-content">
+      <div class="msg-meta">
+        <span class="msg-sender ${isAI ? 'ai' : 'user2'}">${isAI ? 'AETHER' : 'YOU'}</span>
+        <span class="msg-time">${ts()}</span>
+      </div>
+      <div class="msg-bubble ${isAI ? 'ai' : 'user2'}">${escHtml(text)}</div>
+      ${sourcesHTML}
+    </div>
+  `;
+  chatMessages.appendChild(wrap);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return wrap;
+}
 
-chatSend.addEventListener('click', sendMessage);
-chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
 
-// Center input
-const centerInput = document.querySelector('.center-input');
-centerInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && centerInput.value.trim()) {
-    const val = centerInput.value.trim();
-    centerInput.value = '';
-    const chat = document.querySelector('.chat-input');
-    if (chat) { chat.value = val; chatInput.value = val; sendMessage(); }
+function showTyping() {
+  const d = document.createElement('div');
+  d.id = 'typingWrap';
+  d.className = 'msg-wrap';
+  d.innerHTML = `
+    <div class="msg-avatar ai">AI</div>
+    <div class="msg-content">
+      <div class="msg-meta"><span class="msg-sender ai">AETHER</span></div>
+      <div class="msg-bubble ai" style="padding:10px 18px">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  chatMessages.appendChild(d);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+function hideTyping() {
+  const el = document.getElementById('typingWrap');
+  if (el) el.remove();
+}
+
+// Initial greeting
+setTimeout(() => {
+  addMsg('ai', `Neural core online. I'm Aether — your local-first AI assistant. I have RAG capabilities with your ingested documents. How can I help you today?`);
+}, 4500);
+
+/* ─── SEND MESSAGE ─── */
+async function sendMessage(text) {
+  if (!text || isSending) return;
+  isSending = true;
+  document.getElementById('sendBtn').classList.add('loading');
+  document.getElementById('chatInput').value = '';
+
+  addMsg('user', text);
+  showTyping();
+  addSysLog('AI', `Query dispatched → ${useCloud ? 'Gemini' : 'Ollama'}`, 'ai');
+
+  try {
+    const res = await fetch(`${API}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: text, useCloud })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    hideTyping();
+    addMsg('ai', data.answer, data.sourceChunks);
+    addSysLog('AI', 'Response received', 'ai');
+
+    // show RAG context if any
+    updateRagContext(data.sourceChunks);
+  } catch(e) {
+    hideTyping();
+    addMsg('ai', `Connection error: ${e.message}. Ensure the Spring Boot server is running on :8080.`);
+    addSysLog('NET', `Request failed: ${e.message}`, 'err');
+  }
+
+  isSending = false;
+  document.getElementById('sendBtn').classList.remove('loading');
+}
+
+/* ─── RAG CONTEXT PANEL ─── */
+function updateRagContext(chunks) {
+  const el = document.getElementById('ragContext');
+  const badge = document.getElementById('ragCount');
+  if (!chunks || !chunks.length) {
+    el.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-lo);letter-spacing:1px">NO CONTEXT RETRIEVED</div>`;
+    badge.textContent = '0';
+    return;
+  }
+  badge.textContent = chunks.length;
+  el.innerHTML = chunks.slice(0,3).map(c => `
+    <div class="context-item">
+      <div class="ctx-file">📎 ${c.documentName || 'unknown.pdf'}</div>
+      <div class="ctx-score">
+        <div class="ctx-score-bar"><div class="ctx-score-fill" style="width:${Math.round((c.score||0.7)*100)}%"></div></div>
+        <span class="ctx-score-val">${((c.score||0.7)*100).toFixed(0)}%</span>
+      </div>
+      <div class="ctx-snippet">${(c.content||'').substring(0,120)}…</div>
+    </div>
+  `).join('');
+}
+
+/* ─── CHAT HISTORY ─── */
+async function loadHistory() {
+  addSysLog('DB', 'Fetching chat history…', 'ai');
+  try {
+    const res = await fetch(`${API}/api/chats`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const msgs = await res.json();
+    renderHistory(msgs);
+    addSysLog('DB', `Loaded ${msgs.length} messages`, 'sys');
+  } catch(e) {
+    addSysLog('NET', `History fetch failed: ${e.message}`, 'err');
+  }
+}
+
+function renderHistory(msgs) {
+  const el = document.getElementById('historyList');
+  const badge = document.getElementById('histCount');
+  if (!msgs.length) { el.innerHTML = '<div style="padding:12px;font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--text-lo);text-align:center">EMPTY</div>'; return; }
+  badge.textContent = msgs.length;
+  el.innerHTML = msgs.slice().reverse().map(m => {
+    const role = m.user ? 'user2' : 'ai';
+    const label = m.user ? 'YOU' : 'AETHER';
+    const t = m.timestamp ? new Date(m.timestamp).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="history-item">
+      <div class="hist-role ${role}">${label}</div>
+      <div class="hist-text">${escHtml(m.chatContent||'')}</div>
+      <div class="hist-time">${t}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── DOCUMENTS ─── */
+async function loadDocs() {
+  try {
+    const res = await fetch(`${API}/api/pdfs/all`);
+    if (!res.ok) throw new Error();
+    const docs = await res.json();
+    renderDocs(docs);
+  } catch(e) { /* silent */ }
+}
+
+function renderDocs(docs) {
+  const el = document.getElementById('docsList');
+  const badge = document.getElementById('docCount');
+  badge.textContent = docs.length;
+  if (!docs.length) {
+    el.innerHTML = '<div style="padding:16px 12px;font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--text-lo);text-align:center;letter-spacing:2px">NO DOCS INGESTED</div>';
+    return;
+  }
+  el.innerHTML = docs.map(d => `
+    <div class="doc-item">
+      <span class="doc-icon">📄</span>
+      <div class="doc-info">
+        <div class="doc-name">${d.fileName || d.name || 'document.pdf'}</div>
+        <div class="doc-meta">${d.chunkCount || '—'} chunks · PDF</div>
+      </div>
+      <div class="doc-status"></div>
+    </div>
+  `).join('');
+}
+
+/* ─── PDF UPLOAD ─── */
+const pdfInput = document.getElementById('pdfInput');
+const uploadProgress = document.getElementById('uploadProgress');
+const upFill = document.getElementById('upFill');
+
+document.getElementById('uploadZone').addEventListener('click', () => pdfInput.click());
+
+pdfInput.addEventListener('change', async () => {
+  const file = pdfInput.files[0];
+  if (!file) return;
+
+  uploadProgress.classList.add('show');
+  upFill.style.width = '0%';
+  addSysLog('SYS', `Uploading: ${file.name}`, 'sys');
+
+  // fake progress tick
+  let prog = 0;
+  const tick = setInterval(() => {
+    prog = Math.min(prog + Math.random() * 15, 85);
+    upFill.style.width = prog + '%';
+  }, 200);
+
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(`${API}/api/pdfs/upload`, { method:'POST', body:fd });
+    clearInterval(tick);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    upFill.style.width = '100%';
+    addSysLog('SYS', `Ingested: ${file.name}`, 'sys');
+    setTimeout(() => { uploadProgress.classList.remove('show'); loadDocs(); }, 800);
+  } catch(e) {
+    clearInterval(tick);
+    uploadProgress.classList.remove('show');
+    addSysLog('NET', `Upload failed: ${e.message}`, 'err');
+  }
+  pdfInput.value = '';
+});
+
+// drag & drop
+const uz = document.getElementById('uploadZone');
+uz.addEventListener('dragover', e => { e.preventDefault(); uz.style.borderColor='var(--cyan)'; });
+uz.addEventListener('dragleave', () => { uz.style.borderColor=''; });
+uz.addEventListener('drop', e => {
+  e.preventDefault(); uz.style.borderColor='';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    const dt = new DataTransfer(); dt.items.add(file);
+    pdfInput.files = dt.files;
+    pdfInput.dispatchEvent(new Event('change'));
   }
 });
 
-// Task tab switching
-document.querySelectorAll('.task-tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('.task-tab').forEach(t => t.classList.remove('active'));
+/* ─── SEND EVENTS ─── */
+document.getElementById('sendBtn').addEventListener('click', () => {
+  sendMessage(document.getElementById('chatInput').value.trim());
+});
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) sendMessage(document.getElementById('chatInput').value.trim());
+});
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('chatInput').value = '';
+});
+
+function quickPrompt(text) {
+  document.getElementById('chatInput').value = text;
+  sendMessage(text);
+}
+
+/* ─── SIDEBAR NAV ─── */
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
     this.classList.add('active');
   });
 });
 
-// Nav item switching
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', function() {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
+/* ─── INIT ─── */
+setTimeout(() => {
+  loadDocs();
+  loadHistory();
+}, 4800);
 </script>
 </body>
 </html>
