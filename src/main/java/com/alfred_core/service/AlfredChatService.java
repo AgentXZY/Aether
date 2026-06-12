@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.alfred_core.dto.ChatRequest;
 import com.alfred_core.dto.ChatResponse;
 import com.alfred_core.dto.SearchResultDto;
+import com.alfred_core.intent.IntentRouterService;
 
 @Service
 public class AlfredChatService {
@@ -18,6 +19,7 @@ public class AlfredChatService {
     private final ChatMessageService chatMessageService;
 //    private final EmbeddingService embeddingService;
     private final RetrievalService retrievalService;
+//    private final IntentRouterService intentRouterService;
 
     public AlfredChatService(
             PdfSearchService pdfSearchService,
@@ -29,6 +31,7 @@ public class AlfredChatService {
             ChatMessageService chatMessageService,
             EmbeddingService embeddingService,
             RetrievalService retrievalService
+//            IntentRouterService intentRouterService
     ) {
         this.promptBuilderService = promptBuilderService;
         this.providerRouter = providerRouter;
@@ -37,6 +40,7 @@ public class AlfredChatService {
         this.chatMessageService = chatMessageService;
 //        this.embeddingService = embeddingService;
         this.retrievalService = retrievalService;
+//        this.intentRouterService = intentRouterService;
     }
 
     public ChatResponse ask(ChatRequest request) {

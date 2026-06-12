@@ -1,0 +1,64 @@
+{
+  "WEB_SEARCH": [
+    "latest news",
+    "recent updates",
+    "find information",
+    "search internet",
+    "look up online",
+    "research this topic",
+    "latest developments",
+    "show me current trends",
+    "find product reviews",
+    "what's happening in AI"
+  ],
+
+  "FILE_SYSTEM": [
+    "create folder",
+    "create directory",
+    "make workspace",
+    "build project structure",
+    "scaffold application",
+    "generate project structure",
+    "create project",
+    "set up backend",
+    "make a new project",
+    "create files"
+  ],
+
+  "OPEN_APP": [
+    "open chrome",
+    "launch vscode",
+    "start spotify",
+    "open application",
+    "run program",
+    "launch browser",
+    "start editor",
+    "open youtube"
+  ],
+
+  "MEMORY_STORE": [
+    "remember this",
+    "store this information",
+    "my favorite movie is",
+    "my birthday is june",
+    "i enjoy science fiction"
+  ],
+
+  "MEMORY_RECALL": [
+    "what did i tell you",
+    "what was my favorite movie",
+    "recall my preferences",
+    "what project did i choose"
+  ],
+
+  "RAG_CHAT": [
+    "what is deadlock",
+    "explain polymorphism",
+    "tell me about threads",
+    "how does java work",
+    "describe operating system",
+    "teach me dynamic programming",
+    "what is dependency injection",
+    "explain spring security"
+  ]
+}

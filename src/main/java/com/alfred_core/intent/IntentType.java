@@ -6,5 +6,7 @@ public enum IntentType {
 	FILE_SYSTEM,
 	OPEN_APP,
 	WEATHER,
+	MEMORY_RECALL,
+	MEMORY_STORE,
 	UNKNOWN
 }
