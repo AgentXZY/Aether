@@ -1,4 +1,4 @@
-package com.alfred_core.automation.web;
+package com.alfred_core.automation.web.search;
 
 import java.util.Map;
 

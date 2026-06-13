@@ -1,4 +1,4 @@
-package com.alfred_core.automation.scraping;
+package com.alfred_core.automation.web.scraping;
 
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ public class ScrapingService {
         this.scraper = scraper;
     }
 
-    public String scrape(String url) {
+    public WebPage scrape(String url) {
         return scraper.scrape(url);
     }
 }

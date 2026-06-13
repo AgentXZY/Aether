@@ -1,8 +1,8 @@
-package com.alfred_core.testcontroller;
+package com.alfred_core.controller;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.alfred_core.automation.web.WebSearchService;
+import com.alfred_core.automation.web.search.WebSearchService;
 
 @RestController
 @RequestMapping("/search")
