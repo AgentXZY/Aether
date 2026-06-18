@@ -1,7 +1,10 @@
 package com.alfred_core.service;
 
 import java.util.List;
+
 import org.springframework.stereotype.Service;
+
+import com.alfred_core.automation.web.search.WebSearchService;
 import com.alfred_core.dto.ChatRequest;
 import com.alfred_core.dto.ChatResponse;
 import com.alfred_core.dto.SearchResultDto;
@@ -20,6 +23,7 @@ public class AlfredChatService {
 //    private final EmbeddingService embeddingService;
     private final RetrievalService retrievalService;
     private final IntentRouterService intentRouter;
+    private final WebSearchService webSearchService;
 
     public AlfredChatService(
             PdfSearchService pdfSearchService,
@@ -31,7 +35,8 @@ public class AlfredChatService {
             ChatMessageService chatMessageService,
             EmbeddingService embeddingService,
             RetrievalService retrievalService,
-            IntentRouterService intentRouter
+            IntentRouterService intentRouter,
+            WebSearchService webSearchService
     ) {
         this.promptBuilderService = promptBuilderService;
         this.providerRouter = providerRouter;
@@ -41,6 +46,7 @@ public class AlfredChatService {
 //        this.embeddingService = embeddingService;
         this.retrievalService = retrievalService;
         this.intentRouter = intentRouter;
+        this.webSearchService = webSearchService;
     }
 
     public ChatResponse ask(ChatRequest request) {
@@ -103,11 +109,10 @@ public class AlfredChatService {
                         );
             } catch(Exception e) {
             	answer = "Apologies, Master Bruce. The AI provider is currently unavailable.";
-            }
-            
-            chatMessageService.saveMessage(answer,false);
+            	}
         	}
        };
+       chatMessageService.saveMessage(answer,false);
        		return new ChatResponse(answer, chunks);
     }
 }

@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.alfred_core.automation.web.dto.SearchResponse;
+
 @Service
 public class TavilySearchProvider implements SearchProvider {
 
@@ -50,6 +52,7 @@ public class TavilySearchProvider implements SearchProvider {
                         String.class
                 );
 
+        System.out.println(response.getBody());
         return response.getBody();
     }
 }
