@@ -4,6 +4,6 @@ import com.alfred_core.automation.web.dto.SearchResponse;
 
 public interface SearchProvider {
 
-	public String search(String query);
+	public SearchResponse search(String query);
 	
 }
