@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.alfred_core.automation.web.dto.SearchResponse;
+import com.alfred_core.automation.web.scraping.ScrapingService;
 import com.alfred_core.automation.web.search.WebSearchService;
 import com.alfred_core.dto.ChatRequest;
 import com.alfred_core.dto.ChatResponse;
@@ -24,6 +26,8 @@ public class AlfredChatService {
     private final RetrievalService retrievalService;
     private final IntentRouterService intentRouter;
     private final WebSearchService webSearchService;
+//    private final ScrapingService scrapingService;
+    private final UrlSearchService urlSearchService;
 
     public AlfredChatService(
             PdfSearchService pdfSearchService,
@@ -36,7 +40,9 @@ public class AlfredChatService {
             EmbeddingService embeddingService,
             RetrievalService retrievalService,
             IntentRouterService intentRouter,
-            WebSearchService webSearchService
+            WebSearchService webSearchService,
+//            ScrapingService scrapingService,
+            UrlSearchService urlSearchService
     ) {
         this.promptBuilderService = promptBuilderService;
         this.providerRouter = providerRouter;
@@ -47,6 +53,8 @@ public class AlfredChatService {
         this.retrievalService = retrievalService;
         this.intentRouter = intentRouter;
         this.webSearchService = webSearchService;
+//        this.scrapingService = scrapingService;
+        this.urlSearchService = urlSearchService;
     }
 
     public ChatResponse ask(ChatRequest request) {
@@ -74,8 +82,72 @@ public class AlfredChatService {
         case FILE_SYSTEM ->
             answer = "File system capability coming soon, Sir. I am being equipped for that as we speak.";
 
-        case WEB_SEARCH ->
-            answer = "Web search integration is being prepared, Sir. Stand by.";
+        case WEB_SEARCH -> {
+        	String query = request.getQuestion();
+            
+            if (UrlSearchService.hasUrls(query)) {
+                
+            	List<String> urls = urlSearchService.extractUrls(query);
+            	String extractedData = urlSearchService.generatePrompt(urls);
+
+                String prompt = """
+                        You are Alfred Pennyworth.
+
+                        Conversation History:
+                        %s
+
+                		Extracted data
+                		%s
+
+                        User asks:
+                        %s
+
+                        Alfred responds:
+                        """
+                        .formatted(
+                                historyContext,
+                                extractedData,
+                                query
+                        );
+
+                answer = providerRouter.generate(prompt, request.isUseCloud());
+
+            } else {
+                // Normal search flow
+                SearchResponse response = webSearchService.search(query);
+
+                StringBuilder webContext = new StringBuilder();
+                response.getResults().forEach(result ->
+                        webContext.append(result.getTitle())
+                                  .append("\n")
+                                  .append(result.getContent())
+                                  .append("\n\n")
+                );
+
+                String prompt = """
+                        You are Alfred Pennyworth.
+
+                        Conversation History:
+                        %s
+
+                        Web Search Results:
+                        %s
+
+                        User asks:
+                        %s
+
+                        Alfred responds:
+                        """
+                        .formatted(
+                                historyContext,
+                                webContext.toString(),
+                                query
+                        );
+
+                answer = providerRouter.generate(prompt, request.isUseCloud());
+            }
+        }
+
 
         case OPEN_APP ->
             answer = "App launching capability incoming, Sir.";

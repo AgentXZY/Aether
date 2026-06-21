@@ -26,7 +26,7 @@ public class TavilySearchProvider implements SearchProvider {
     }
 
     @Override
-    public String search(String query) {
+    public SearchResponse search(String query) {
 
         String url = "https://api.tavily.com/search";
 
@@ -44,12 +44,12 @@ public class TavilySearchProvider implements SearchProvider {
         HttpEntity<Map<String, Object>> entity =
                 new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> response =
+        ResponseEntity<SearchResponse> response =
                 restTemplate.exchange(
                         url,
                         HttpMethod.POST,
                         entity,
-                        String.class
+                        SearchResponse.class
                 );
 
         System.out.println(response.getBody());

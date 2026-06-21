@@ -2,6 +2,8 @@ package com.alfred_core.automation.web.search;
 
 import org.springframework.stereotype.Service;
 
+import com.alfred_core.automation.web.dto.SearchResponse;
+
 @Service
 public class WebSearchService {
 
@@ -13,7 +15,7 @@ public class WebSearchService {
         this.provider = provider;
     }
 
-    public String search(String query) {
+    public SearchResponse search(String query) {
 
         return provider.search(query);
 

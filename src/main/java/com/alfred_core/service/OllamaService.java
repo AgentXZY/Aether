@@ -27,7 +27,7 @@ public class OllamaService {
 
 		Map<String, Object> body = new HashMap<>();
 
-		body.put("model", "qwen3:4b-instruct");
+		body.put("model", "qwen3:4b-instruct"); //phi4-mini:3.8b | qwen3:4b-instruct
 		body.put("prompt", prompt);
 		body.put("stream", false);
 

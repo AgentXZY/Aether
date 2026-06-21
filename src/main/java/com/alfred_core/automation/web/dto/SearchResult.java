@@ -1,5 +1,8 @@
 package com.alfred_core.automation.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchResult {
 
 	private String title;

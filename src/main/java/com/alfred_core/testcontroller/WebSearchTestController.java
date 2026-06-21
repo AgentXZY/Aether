@@ -1,29 +1,27 @@
-package com.alfred_core.controller;
+package com.alfred_core.testcontroller;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alfred_core.automation.web.dto.SearchResponse;
 import com.alfred_core.automation.web.search.WebSearchService;
 
 @RestController
-@RequestMapping("/search")
-public class SearchController {
+public class WebSearchTestController {
 
     private final WebSearchService webSearchService;
 
-    public SearchController(
+    public WebSearchTestController(
             WebSearchService webSearchService) {
 
         this.webSearchService = webSearchService;
     }
 
-    @GetMapping
-    public SearchResponse search(
-            @RequestParam String q) {
+    @GetMapping("/test-search")
+    public SearchResponse testSearch() {
 
-        return webSearchService.search(q);
+        return webSearchService.search(
+                "latest Java 25 features"
+        );
     }
 }
