@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.alfred_core.automation.web.dto.SearchResponse;
-import com.alfred_core.automation.web.scraping.ScrapingService;
 import com.alfred_core.automation.web.search.WebSearchService;
 import com.alfred_core.dto.ChatRequest;
 import com.alfred_core.dto.ChatResponse;
@@ -13,11 +12,13 @@ import com.alfred_core.dto.SearchResultDto;
 import com.alfred_core.intent.IntentResult;
 import com.alfred_core.intent.IntentRouterService;
 import com.alfred_core.intent.IntentType;
+import com.alfred_core.prompt.prompt_service.PromptOrchestrator;
 
 @Service
 public class AlfredChatService {
 
-    private final PromptBuilderService promptBuilderService;
+//    private final PromptBuilderService promptBuilderService;
+	private final PromptOrchestrator promptOrchestrator;
     private final AIProviderRouter providerRouter;
 //    private final QueryProcessorService queryProcessorService;
     private final ConversationContextService conversationContextService;
@@ -30,8 +31,9 @@ public class AlfredChatService {
     private final UrlSearchService urlSearchService;
 
     public AlfredChatService(
+    		PromptOrchestrator promptOrchestrator,
             PdfSearchService pdfSearchService,
-            PromptBuilderService promptBuilderService,
+//            PromptBuilderService promptBuilderService,
             AIProviderRouter providerRouter,
             SemanticSearchService semanticSearchService,
 //            QueryProcessorService queryProcessorService,
@@ -44,7 +46,8 @@ public class AlfredChatService {
 //            ScrapingService scrapingService,
             UrlSearchService urlSearchService
     ) {
-        this.promptBuilderService = promptBuilderService;
+//        this.promptBuilderService = promptBuilderService;
+    	this.promptOrchestrator = promptOrchestrator;
         this.providerRouter = providerRouter;
 //        this.queryProcessorService = queryProcessorService;
         this.conversationContextService = conversationContextService;
@@ -90,25 +93,14 @@ public class AlfredChatService {
             	List<String> urls = urlSearchService.extractUrls(query);
             	String extractedData = urlSearchService.generatePrompt(urls);
 
-                String prompt = """
-                        You are Alfred Pennyworth.
-
-                        Conversation History:
-                        %s
-
-                		Extracted data
-                		%s
-
-                        User asks:
-                        %s
-
-                        Alfred responds:
-                        """
-                        .formatted(
-                                historyContext,
-                                extractedData,
-                                query
-                        );
+            	String prompt =
+            	        promptOrchestrator.buildPrompt(
+            	                IntentType.WEB_SEARCH,
+            	                true,
+            	                query,
+            	                historyContext,
+            	                extractedData
+            	        );
 
                 answer = providerRouter.generate(prompt, request.isUseCloud());
 
@@ -124,24 +116,13 @@ public class AlfredChatService {
                                   .append("\n\n")
                 );
 
-                String prompt = """
-                        You are Alfred Pennyworth.
-
-                        Conversation History:
-                        %s
-
-                        Web Search Results:
-                        %s
-
-                        User asks:
-                        %s
-
-                        Alfred responds:
-                        """
-                        .formatted(
+                String prompt =
+                        promptOrchestrator.buildPrompt(
+                                IntentType.WEB_SEARCH,
+                                false,
+                                query,
                                 historyContext,
-                                webContext.toString(),
-                                query
+                                webContext.toString()
                         );
 
                 answer = providerRouter.generate(prompt, request.isUseCloud());
@@ -161,28 +142,39 @@ public class AlfredChatService {
         case WEATHER ->
             answer = "Weather service not yet connected, Sir. Working on it.";
             
-        default ->{
-        	chunks =
-        	        retrievalService.retrieve(
-        	                request.getQuestion()
-        	        );
-        	
-        	String prompt = promptBuilderService.buildPrompt(
-        		    request.getQuestion(),
-        		    chunks,
-        		    historyContext
-        		);
-        	
-        	try {
-            	answer =
-                        providerRouter.generate(
-                                prompt,
-                                request.isUseCloud()
+            default -> {
+
+                chunks = retrievalService.retrieve(
+                        request.getQuestion()
+                );
+
+                String chunkContext =
+                        chunks.stream()
+                              .map(SearchResultDto::getChunkText)
+                              .reduce("", (a, b) -> a + "\n\n" + b);
+
+                String prompt =
+                        promptOrchestrator.buildPrompt(
+                                IntentType.RAG_CHAT,
+                                false,
+                                request.getQuestion(),
+                                historyContext,
+                                chunkContext
                         );
-            } catch(Exception e) {
-            	answer = "Apologies, Master Bruce. The AI provider is currently unavailable.";
-            	}
-        	}
+
+                try {
+
+                    answer = providerRouter.generate(
+                            prompt,
+                            request.isUseCloud()
+                    );
+
+                } catch (Exception e) {
+
+                    answer =
+                        "Apologies, Sir. The AI provider is currently unavailable.";
+                }
+            }
        };
        chatMessageService.saveMessage(answer,false);
        		return new ChatResponse(answer, chunks);

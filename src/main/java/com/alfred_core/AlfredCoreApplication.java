@@ -14,24 +14,24 @@ public class AlfredCoreApplication {
         SpringApplication.run(AlfredCoreApplication.class, args);
     }
 
-    @Bean
-    CommandLineRunner runLLMOnStartup() {
-        return args -> {
-
-            try {
-                // Example: launching Qwen via Ollama
-                ProcessBuilder pb = new ProcessBuilder("ollama", "run", "qwen3:4b-instruct");
-                pb.inheritIO(); // show logs in console
-                Process process = pb.start();
-
-                // Optional: keep track of the process
-                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                    process.destroy();
-                }));
-
-            } catch (IOException e) {
-                System.err.println("Failed to start Qwen LLM: " + e.getMessage());
-            }
-        };
-    }
+//    @Bean
+//    CommandLineRunner runLLMOnStartup() {
+//        return args -> {
+//
+//            try {
+//                // Example: launching Qwen via Ollama
+//                ProcessBuilder pb = new ProcessBuilder("ollama", "run", "qwen3:4b-instruct");
+//                pb.inheritIO(); // show logs in console
+//                Process process = pb.start();
+//
+//                // Optional: keep track of the process
+//                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//                    process.destroy();
+//                }));
+//
+//            } catch (IOException e) {
+//                System.err.println("Failed to start Qwen LLM: " + e.getMessage());
+//            }
+//        };
+//    }
 }
